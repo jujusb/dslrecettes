@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.insa.dsl.cuisine.recette.ide
+Bundle-ManifestVersion: 2
+Bundle-Name: fr.insa.dsl.cuisine.recette.ide
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: fr.insa.dsl.cuisine.recette.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: fr.insa.dsl.cuisine.recette,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide
+Bundle-RequiredExecutionEnvironment: JavaSE-11
