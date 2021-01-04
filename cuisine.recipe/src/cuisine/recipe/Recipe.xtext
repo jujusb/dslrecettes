@@ -1,0 +1,57 @@
+grammar cuisine.recipe.Recipe with org.eclipse.xtext.common.Terminals
+
+generate recipe "http://www.recipe.cuisine/Recipe"
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+Model:
+	defTechniques+=Technique* recipes+=Recipe*;
+	
+Technique:
+	"define" name=ID ("[" objectsFac+=IngrUslTech "]" | objects+=IngrUslTech | "{" choices "}")+ ;
+
+fragment choices: 
+	choix+=ID ("," choix+=ID)* | "{" choices "}" ("," "{" choices "}")*  
+;
+
+IngrUslTech:
+	"ingredient" | "ustensil" | "preparation" | "temperature" | "tool"
+;
+
+Recipe:
+	"recipe" "{" "name" ":" name=ID suitename+=ID* "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+;
+
+Ustensils:
+	{Ustensils} "ustensils" ":" "{" ustr+=Ustensil* "}"
+;
+
+Ustensil:
+	name=ID
+;
+
+Ingredients : 
+	{Ingredients} "ingredients" ":" "{" ingr+=Ingredient* "}"
+;
+
+Ingredient:
+	name=ID suitenameIngredient+=ID* ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=ID)? ("@" tag=ID)? 
+;
+
+Quantificateurs:
+	{Quantificateurs} "càc" | {Quantificateurs} "càs" | {Quantificateurs} unit=Unit? ("g" | "l") 
+;
+
+Unit:
+	"k" | "h" | "da" | "d" | "c" | "m" 
+;
+
+Instructions: 
+	{Instructions} "instructions" ":" "{" "}"//instructions+=Instruction* "END" "}"
+;
+
+Instruction:
+	name=ID obj+=ID* ('->' preparation=Ingredient)? '\n' 
+;
+
+terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
