@@ -1,3 +1,10 @@
+Pour travailler avec git, quand une version est récupérée:
+- cuisine.recipe -> create a new folder 'src-gen' -> Clean all projects
+- Project -> Clean
+- cuisine.recipe -> src -> cuisine.recipe -> GenerateRecipe.mwe2 -> Run as
+
+Les tests doivent fonctionner
+
 # Modèle : 
 
 Déclaration de techniques
