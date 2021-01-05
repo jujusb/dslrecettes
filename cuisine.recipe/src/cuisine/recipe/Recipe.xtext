@@ -47,11 +47,11 @@ Unit:
 ;
 
 Instructions: 
-	{Instructions} "instructions" ":" "{" "}"//instructions+=Instruction* "END" "}"
+	{Instructions} "instructions" ":" "{" instructions+=Instruction* "END" "}"
 ;
 
 Instruction:
-	name=CUSTOMSTRING obj+=CUSTOMSTRING* ('->' preparation=Ingredient)? '\n' 
+	name=CUSTOMSTRING obj+=CUSTOMSTRING* ('->' preparation=Ingredient)?
 ;
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;

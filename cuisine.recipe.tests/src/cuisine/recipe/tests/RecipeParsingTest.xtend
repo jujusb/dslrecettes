@@ -65,7 +65,7 @@ class RecipeParsingTest {
 				    }
 				    
 				    instructions: {
-				        grill Poele Lardons Fumés "Biens dorés et croustillants"
+				        grill Poele Lardons Fumés
 				        END
 				    }
 				}
