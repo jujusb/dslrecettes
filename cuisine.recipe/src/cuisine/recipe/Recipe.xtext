@@ -8,10 +8,10 @@ Model:
 	defTechniques+=Technique* recipes+=Recipe*;
 	
 Technique:
-	"define" name=ID ("[" objectsFac+=IngrUslTech "]" | objects+=IngrUslTech | "{" choices "}")+ ;
+	"define" name=CUSTOMSTRING ("[" objectsFac+=IngrUslTech "]" | objects+=IngrUslTech | "{" choices "}")+ ;
 
 fragment choices: 
-	choix+=ID ("," choix+=ID)* | "{" choices "}" ("," "{" choices "}")*  
+	choix+=CUSTOMSTRING ("," choix+=CUSTOMSTRING)* | "{" choices "}" ("," "{" choices "}")*  
 ;
 
 IngrUslTech:
@@ -19,7 +19,7 @@ IngrUslTech:
 ;
 
 Recipe:
-	"recipe" "{" "name" ":" name=ID suitename+=ID* "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+	"recipe" "{" "name" ":" name=CUSTOMSTRING suitename+=CUSTOMSTRING* "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
 ;
 
 Ustensils:
@@ -27,7 +27,7 @@ Ustensils:
 ;
 
 Ustensil:
-	name=ID
+	name=CUSTOMSTRING
 ;
 
 Ingredients : 
@@ -35,7 +35,7 @@ Ingredients :
 ;
 
 Ingredient:
-	name=ID suitenameIngredient+=ID* ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=ID)? ("@" tag=ID)? 
+	name=CUSTOMSTRING suitenameIngredient+=CUSTOMSTRING* ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=CUSTOMSTRING)? ("@" tag=CUSTOMSTRING)? 
 ;
 
 Quantificateurs:
@@ -51,7 +51,8 @@ Instructions:
 ;
 
 Instruction:
-	name=ID obj+=ID* ('->' preparation=Ingredient)? '\n' 
+	name=CUSTOMSTRING obj+=CUSTOMSTRING* ('->' preparation=Ingredient)? '\n' 
 ;
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
+terminal CUSTOMSTRING returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')')* ;
