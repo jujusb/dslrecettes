@@ -6,8 +6,6 @@ xtend-gen/
 .launch/
 .settings/
 generated/
-.classpath
-.project
 
 dist/
 node_modules/
