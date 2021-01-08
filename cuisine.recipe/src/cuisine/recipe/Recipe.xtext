@@ -19,7 +19,7 @@ IngrUslTech:
 ;
 
 Recipe:
-	"recipe" "{" "name" ":" name=CUSTOMSTRING "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+	"recipe" "{" "name" ":" name=CUSTOMSTRING suitename+=CUSTOMSTRING* "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
 ;
 
 Ustensils:
@@ -35,11 +35,11 @@ Ingredients :
 ;
 
 Ingredient:
-	name=CUSTOMSTRING ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=CUSTOMSTRING)? ("@" tag=CUSTOMSTRING)? 
+	name=CUSTOMSTRING suitenameIngredient+=CUSTOMSTRING* ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=CUSTOMSTRING)? ("@" tag=CUSTOMSTRING)? 
 ;
 
 Quantificateurs:
-	{Quantificateurs} "cc" | {Quantificateurs} "cs" | {Quantificateurs} unit=Unit? ("g" | "l") 
+	{Quantificateurs} "càc" | {Quantificateurs} "càs" | {Quantificateurs} unit=Unit? ("g" | "l") 
 ;
 
 Unit:
@@ -55,4 +55,4 @@ Instruction:
 ;
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
-terminal CUSTOMSTRING returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|''..''|'\''|'('|')') ('a'..'z'|'A'..'Z'|''..''|'\''|'('|')')* ;
+terminal CUSTOMSTRING returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')')* ;
