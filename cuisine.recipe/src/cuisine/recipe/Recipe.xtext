@@ -8,7 +8,7 @@ Model:
 	defTechniques+=Technique* recipes+=Recipe*;
 	
 Technique:
-	"define" name=CUSTOMSTRING ("[" objectsFac+=IngrUslTech "]" | objects+=IngrUslTech | "{" choices "}")+ ;
+	"define" name=WORD ("[" objectsFac+=IngrUslTech "]" | objects+=IngrUslTech | "{" choices "}")+ ;
 
 fragment choices: 
 	choix+=CUSTOMSTRING ("," choix+=CUSTOMSTRING)* | "{" choices "}" ("," "{" choices "}")*  
@@ -19,11 +19,11 @@ IngrUslTech:
 ;
 
 Recipe:
-	"recipe" "{" "name" ":" name=CUSTOMSTRING suitename+=CUSTOMSTRING* "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+	"recipe" "{" "name" ":" name=CUSTOMSTRING "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
 ;
 
 Ustensils:
-	{Ustensils} "ustensils" ":" "{" ustr+=Ustensil* "}"
+	{Ustensils} "ustensils" ":" "{" (ust+=Ustensil (','ust+=Ustensil)*)? "}"
 ;
 
 Ustensil:
@@ -31,11 +31,11 @@ Ustensil:
 ;
 
 Ingredients : 
-	{Ingredients} "ingredients" ":" "{" ingr+=Ingredient* "}"
+	{Ingredients} "ingredients" ":" "{" (ingr+=Ingredient (',' ingr+=Ingredient)*)? "}"
 ;
 
 Ingredient:
-	name=CUSTOMSTRING suitenameIngredient+=CUSTOMSTRING* ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=CUSTOMSTRING)? ("@" tag=CUSTOMSTRING)? 
+	name=CUSTOMSTRING ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=ID)? ("@" tag=ID)? 
 ;
 
 Quantificateurs:
@@ -47,12 +47,16 @@ Unit:
 ;
 
 Instructions: 
-	{Instructions} "instructions" ":" "{" instructions+=Instruction* "END" "}"
+	{Instructions} "instructions" ":" "{" (inst+=Instruction (',' inst+=Instruction)*)? "END" "}"
 ;
 
 Instruction:
-	name=CUSTOMSTRING obj+=CUSTOMSTRING* ('->' preparation=Ingredient)?
+	name=WORD obj+=WORD* ('->' preparation=Ingredient)?
+;
+
+CUSTOMSTRING:
+	name+=WORD+
 ;
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
-terminal CUSTOMSTRING returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')')* ;
+terminal WORD returns ecore::EString : ('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')')+;
