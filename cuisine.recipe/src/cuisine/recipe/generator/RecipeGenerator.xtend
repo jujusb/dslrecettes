@@ -7,6 +7,17 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import cuisine.recipe.recipe.Model
+import cuisine.recipe.recipe.Recipe
+import cuisine.recipe.recipe.Ingredients
+import cuisine.recipe.recipe.Ustensils
+import cuisine.recipe.recipe.Ustensil
+import cuisine.recipe.recipe.Ingredient
+import cuisine.recipe.recipe.Instructions
+import cuisine.recipe.recipe.Quantite
+import cuisine.recipe.recipe.Quantificateurs
+import cuisine.recipe.recipe.Instruction
+import cuisine.recipe.recipe.InstructionParameter
 
 /**
  * Generates code from your model files on save.
@@ -14,12 +25,126 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class RecipeGenerator extends AbstractGenerator {
-
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+	override void doGenerate(Resource res, IFileSystemAccess2 fsa, IGeneratorContext ctx){
+		fsa.generateFile(res.URI.trimFileExtension.appendFileExtension("tex").lastSegment,
+			res.allContents.filter(Model).toIterable.head.compile.toString
+		)
 	}
+	
+	def dispatch compile(Object exp) '''this statement is not supported:«exp»'''
+	
+	def dispatch compile(Recipe recipe) '''\section{«recipe.name»}
+	Preparation et cuisson:«recipe.time» minutes
+	
+	Pour «recipe.nb» personnes
+	
+	Ingrédients:
+	«recipe.ingredients.compile»
+	
+	Ustensils:
+	«recipe.ustensils.compile»
+	
+	Instructions:
+	«recipe.instructions.compile»
+	'''
+
+   def dispatch compile(Ingredients ingrs) '''
+	\begin{itemize}
+	«FOR ing : ingrs.ingr»
+		\item «ing.compile»
+	«ENDFOR»
+	\end{itemize}
+	'''
+	
+	def dispatch compile(Ingredient ing) '''«ing.qte.compile»«ing.name» «IF ing.tag!==null»(«ing.tag»)«ENDIF»'''
+	
+	def dispatch compile(Quantite qte) '''«IF qte.qt==0»«qte.qt»«qte.quantificateur.compile» de «ELSE» quelques «ENDIF»'''
+												//TODO .qt exist?
+	def dispatch compile(Quantificateurs qt) '''
+«IF qt.equals("càc")|| qt.equals("cc")»
+	 cuillère à café
+«ELSEIF qt.equals("càs")|| qt.equals("cs")»
+	cuillère à soupe
+«ELSE»
+	«qt.unit»«qt.mesure»
+«ENDIF»'''
+
+   def dispatch compile(Ustensils usts) '''
+	\begin{itemize}
+	«FOR ing : usts.ust»
+		\item «ing.compile»
+	«ENDFOR»
+	\end{itemize}
+	'''
+
+   def dispatch compile(Ustensil ust) '''«ust.name» «IF ust.tag!==null»(«ust.tag»)«ENDIF»'''
+   
+   def dispatch compile(Instructions insts) '''
+	\begin{enumerate}
+	«FOR inst : insts.inst»
+		\item «inst.compile»
+	«ENDFOR»
+	\end{enumerate}
+	''' 
+
+   def dispatch compile(Instruction inst) '''
+	«inst.technique»
+	«FOR parameter : inst.parameters»
+		«parameter.compile»
+	«ENDFOR»
+	«IF inst.comment!=null»
+		«inst.comment»
+	«ENDIF»
+	 donne 
+	«IF inst.preparation!=null»
+		«inst.preparation»
+	«ENDIF»
+	''' //TODO remove les guillemets pour comments
+	
+	def dispatch compile(InstructionParameter param) '''
+	«IF param.parameter!==null»
+		«param.parameter»
+	«ELSEIF param.tag!=null»
+		«param.tag»
+	«ELSE»
+		«param.qte»
+		«IF param.qt!==null»
+			«param.qt.compile»
+		«ELSEIF param.time!==null»
+			«param.time»
+		«ELSEIF param.temp!==null»
+			«param.temp»
+		«ENDIF»
+	«ENDIF»
+	''' 
+	
+	def dispatch compile(Model model) '''\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+\geometry{
+ a4paper,
+ total={160mm,257mm},
+ left=25mm,
+ top=20mm,
+ tmargin=30mm,
+ bmargin=30mm,
+}
+
+\title{Livre de recettes}
+\author{}
+\date{}
+\begin{document}
+
+\maketitle
+«FOR recipe : model.recipes»
+	«recipe.compile»
+«ENDFOR»
+\end{document}
+'''
 }
