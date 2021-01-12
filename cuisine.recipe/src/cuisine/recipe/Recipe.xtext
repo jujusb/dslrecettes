@@ -15,7 +15,7 @@ fragment choices:
 ;
 
 IngrUslTech:
-	"ingredient" | "ustensil" | "preparation" | "temperature" | "tool"
+	"ingredient" | "ustensil" | "preparation" | "temperature" | "tool" | 'quantity' | 'time'
 ;
 
 Recipe:
@@ -27,7 +27,7 @@ Ustensils:
 ;
 
 Ustensil:
-	name=CUSTOMSTRING
+	name=CUSTOMSTRING ("@" tag=WORD)? 
 ;
 
 Ingredients : 
@@ -35,11 +35,11 @@ Ingredients :
 ;
 
 Ingredient:
-	name=CUSTOMSTRING ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=WORD)? ("@" tag=WORD)? 
+	name=CUSTOMSTRING ":" (qte=DOUBLE (quantificateur=Quantificateurs)? | "any")("#" group=WORD)? ("@" tag=WORD)? 
 ;
 
 Quantificateurs:
-	{Quantificateurs} "càc" | {Quantificateurs} "càs" | {Quantificateurs} unit=Unit? ("g" | "l") 
+	{Quantificateurs} "càc" | {Quantificateurs} "cc" | {Quantificateurs} "càs" | {Quantificateurs} "cs" | {Quantificateurs} unit=Unit? ("g" | "L"| "l") 
 ;
 
 Unit:
@@ -51,12 +51,20 @@ Instructions:
 ;
 
 Instruction:
-	technique=WORD (parameters+=InstructionParameter (',' parameters+=InstructionParameter)*)? ('->' preparation=CUSTOMSTRING)? (comment=COMMENT)?
+	technique=WORD (parameters+=InstructionParameter (',' parameters+=InstructionParameter)*)?  (comment=COMMENT)? ('->' preparation=CUSTOMSTRING)?
+;
+
+Timing:
+	"s" | "min" | "h" | "days"	
+;
+Temp: 
+	"°C" | "°F"
 ;
 
 InstructionParameter:
-	parameter=CUSTOMSTRING | '#' tag=WORD
+	parameter=CUSTOMSTRING | '#' tag=WORD | '@' tag=WORD | qte=DOUBLE (qt=Quantificateurs | time=Timing | temp=Temp)
 ;
+
 
 CUSTOMSTRING:
 	name+=WORD+
