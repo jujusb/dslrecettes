@@ -70,7 +70,7 @@ class RecipeParsingTest {
 				    }
 				    
 				    instructions: {
-				        grill Poele, Lardons Fumés;
+				        grill Poele, Lardons Fumés "Biens dorés et croustillants";
 				        mix Fouet, #sec, Petit bol;
 				        pour #sec -> pate;
 				        grease Gaufrier chaud -> Gaufrier chaud et graissé

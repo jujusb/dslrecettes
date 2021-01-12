@@ -51,7 +51,7 @@ Instructions:
 ;
 
 Instruction:
-	technique=WORD (parameters+=InstructionParameter (',' parameters+=InstructionParameter)*)? ('->' preparation=CUSTOMSTRING)?
+	technique=WORD (parameters+=InstructionParameter (',' parameters+=InstructionParameter)*)? ('->' preparation=CUSTOMSTRING)? (comment=COMMENT)?
 ;
 
 InstructionParameter:
@@ -64,3 +64,4 @@ CUSTOMSTRING:
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
 terminal WORD returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('0'..'9'|'a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')'|'_')*;
+terminal COMMENT returns ecore::EString : '"' -> '"';
