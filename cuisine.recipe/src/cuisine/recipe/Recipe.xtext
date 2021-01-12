@@ -35,7 +35,7 @@ Ingredients :
 ;
 
 Ingredient:
-	name=CUSTOMSTRING ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=ID)? ("@" tag=ID)? 
+	name=CUSTOMSTRING ":" qte=DOUBLE quantificateur=Quantificateurs ("#" group=WORD)? ("@" tag=WORD)? 
 ;
 
 Quantificateurs:
@@ -47,11 +47,15 @@ Unit:
 ;
 
 Instructions: 
-	{Instructions} "instructions" ":" "{" (inst+=Instruction (',' inst+=Instruction)*)? "END" "}"
+	{Instructions} "instructions" ":" "{" (inst+=Instruction (';' inst+=Instruction)*)? "}"
 ;
 
 Instruction:
-	name=WORD obj+=WORD* ('->' preparation=Ingredient)?
+	technique=WORD (parameters+=InstructionParameter (',' parameters+=InstructionParameter)*)? ('->' preparation=CUSTOMSTRING)?
+;
+
+InstructionParameter:
+	parameter=CUSTOMSTRING | '#' tag=WORD
 ;
 
 CUSTOMSTRING:
@@ -59,4 +63,4 @@ CUSTOMSTRING:
 ;
 
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
-terminal WORD returns ecore::EString : ('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')')+;
+terminal WORD returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('0'..'9'|'a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')'|'_')*;

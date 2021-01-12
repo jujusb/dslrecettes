@@ -57,16 +57,23 @@ class RecipeParsingTest {
 				    nb_pers : 9
 				    
 				    ingredients: {
-				        Lardons Fumés : 100g @lardons
+				        Lardons Fumés : 100g @lardons,
+				        Farine t55 : 140g #sec @farine55,
+				        Sel : 1càc #sec
 				    }
 				    
 				    ustensils: {
-				        Poele
+				        Poele,
+				        Petit bol,
+				        Gaufrier,
+				        Fouet
 				    }
 				    
 				    instructions: {
-				        grill Poele Lardons Fumés
-				        END
+				        grill Poele, Lardons Fumés;
+				        mix Fouet, #sec, Petit bol;
+				        pour #sec -> pate;
+				        grease Gaufrier chaud -> Gaufrier chaud et graissé
 				    }
 				}
 			'''
