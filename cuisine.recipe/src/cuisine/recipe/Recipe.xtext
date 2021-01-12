@@ -35,16 +35,25 @@ Ingredients :
 ;
 
 Ingredient:
-	name=CUSTOMSTRING ":" (qte=DOUBLE (quantificateur=Quantificateurs)? | "any")("#" group=WORD)? ("@" tag=WORD)? 
+	name=CUSTOMSTRING ":" qte=Quantite ("#" group=WORD)? ("@" tag=WORD)? 
+;
+
+Quantite:
+	qt=DOUBLE (quantificateur=Quantificateurs)? | {Quantite} "any"
 ;
 
 Quantificateurs:
-	{Quantificateurs} "càc" | {Quantificateurs} "cc" | {Quantificateurs} "càs" | {Quantificateurs} "cs" | {Quantificateurs} unit=Unit? ("g" | "L"| "l") 
+	{Quantificateurs} "càc" | {Quantificateurs} "cc" | {Quantificateurs} "càs" | {Quantificateurs} "cs" | {Quantificateurs} unit=Unit? mesure=Mesure 
 ;
 
 Unit:
 	"k" | "h" | "da" | "d" | "c" | "m" 
 ;
+
+Mesure:
+	"g" | "L"| "l"
+;
+
 
 Instructions: 
 	{Instructions} "instructions" ":" "{" (inst+=Instruction (';' inst+=Instruction)*)? "}"
