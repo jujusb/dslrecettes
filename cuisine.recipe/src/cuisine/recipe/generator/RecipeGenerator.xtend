@@ -18,6 +18,7 @@ import cuisine.recipe.recipe.Quantite
 import cuisine.recipe.recipe.Quantificateurs
 import cuisine.recipe.recipe.Instruction
 import cuisine.recipe.recipe.InstructionParameter
+import cuisine.recipe.recipe.CustomString
 
 /**
  * Generates code from your model files on save.
@@ -31,22 +32,27 @@ class RecipeGenerator extends AbstractGenerator {
 		)
 	}
 	
-	def dispatch compile(Object exp) '''this statement is not supported:«exp»'''
+	//def dispatch compile(Object exp) '''this statement is not supported:«exp»'''
 	
-	def dispatch compile(Recipe recipe) '''\section{«recipe.name»}
+	def dispatch compile(Recipe recipe) '''\section{«recipe.name.compile»}
 	Preparation et cuisson:«recipe.time» minutes
 	
+	
 	Pour «recipe.nb» personnes
+	
 	
 	Ingrédients:
 	«recipe.ingredients.compile»
 	
+	
 	Ustensils:
 	«recipe.ustensils.compile»
+	
 	
 	Instructions:
 	«recipe.instructions.compile»
 	'''
+
 
    def dispatch compile(Ingredients ingrs) '''
 	\begin{itemize}
@@ -56,18 +62,11 @@ class RecipeGenerator extends AbstractGenerator {
 	\end{itemize}
 	'''
 	
-	def dispatch compile(Ingredient ing) '''«ing.qte.compile»«ing.name» «IF ing.tag!==null»(«ing.tag»)«ENDIF»'''
+	def dispatch compile(Ingredient ing) '''«ing.qte.compile»«ing.name.compile»«IF ing.tag!==null»(«ing.tag»)«ENDIF»'''
 	
-	def dispatch compile(Quantite qte) '''«IF qte.qt==0»«qte.qt»«qte.quantificateur.compile» de «ELSE» quelques «ENDIF»'''
-												//TODO .qt exist?
-	def dispatch compile(Quantificateurs qt) '''
-«IF qt.equals("càc")|| qt.equals("cc")»
-	 cuillère à café
-«ELSEIF qt.equals("càs")|| qt.equals("cs")»
-	cuillère à soupe
-«ELSE»
-	«qt.unit»«qt.mesure»
-«ENDIF»'''
+	def dispatch compile(Quantite qte) '''«IF qte.equals("any")» quelques «ELSEIF qte.quantificateur!==null»«qte.qt» «qte.quantificateur.compile» de «ELSE»«qte.qt» «ENDIF»'''
+	
+	def dispatch compile(Quantificateurs qt) '''«qt»«IF qt.equals("càc")|| qt.equals("cc")»cuillère à café«ELSEIF qt.equals("càs")|| qt.equals("cs")»cuillère à soupe«ELSE»«qt.unit» «qt.mesure»«ENDIF»'''
 
    def dispatch compile(Ustensils usts) '''
 	\begin{itemize}
@@ -77,7 +76,7 @@ class RecipeGenerator extends AbstractGenerator {
 	\end{itemize}
 	'''
 
-   def dispatch compile(Ustensil ust) '''«ust.name» «IF ust.tag!==null»(«ust.tag»)«ENDIF»'''
+   def dispatch compile(Ustensil ust) '''«ust.name.compile» «IF ust.tag!==null»(«ust.tag»)«ENDIF»'''
    
    def dispatch compile(Instructions insts) '''
 	\begin{enumerate}
@@ -88,35 +87,13 @@ class RecipeGenerator extends AbstractGenerator {
 	''' 
 
    def dispatch compile(Instruction inst) '''
-	«inst.technique»
-	«FOR parameter : inst.parameters»
-		«parameter.compile»
-	«ENDFOR»
-	«IF inst.comment!=null»
-		«inst.comment»
-	«ENDIF»
-	 donne 
-	«IF inst.preparation!=null»
-		«inst.preparation»
-	«ENDIF»
+	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
+		«IF inst.preparation!==null» donne «inst.preparation.compile»«ENDIF»
 	''' //TODO remove les guillemets pour comments
 	
-	def dispatch compile(InstructionParameter param) '''
-	«IF param.parameter!==null»
-		«param.parameter»
-	«ELSEIF param.tag!=null»
-		«param.tag»
-	«ELSE»
-		«param.qte»
-		«IF param.qt!==null»
-			«param.qt.compile»
-		«ELSEIF param.time!==null»
-			«param.time»
-		«ELSEIF param.temp!==null»
-			«param.temp»
-		«ENDIF»
-	«ENDIF»
-	''' 
+	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile»«ELSEIF param.tag!=null»«param.tag»«ENDIF»'''
+
+	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
 	
 	def dispatch compile(Model model) '''\documentclass{article}
 \usepackage[utf8]{inputenc}
