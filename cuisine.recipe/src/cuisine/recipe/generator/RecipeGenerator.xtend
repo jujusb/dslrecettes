@@ -62,11 +62,11 @@ class RecipeGenerator extends AbstractGenerator {
 	\end{itemize}
 	'''
 	
-	def dispatch compile(Ingredient ing) '''«ing.qte.compile»«ing.name.compile»«IF ing.tag!==null»(«ing.tag»)«ENDIF»'''
+	def dispatch compile(Ingredient ing) '''«ing.qte.compile»«ing.name.compile»'''
 	
-	def dispatch compile(Quantite qte) '''«IF qte.equals("any")» quelques «ELSEIF qte.quantificateur!==null»«qte.qt» «qte.quantificateur.compile» de «ELSE»«qte.qt» «ENDIF»'''
+	def dispatch compile(Quantite qte) '''«IF qte.equals("any")» quelques «ELSEIF qte.quantificateur!==null»«qte.qt»«qte.quantificateur.compile» de «ELSE»«qte.qt» «ENDIF»'''
 	
-	def dispatch compile(Quantificateurs qt) '''«qt»«IF qt.equals("càc")|| qt.equals("cc")»cuillère à café«ELSEIF qt.equals("càs")|| qt.equals("cs")»cuillère à soupe«ELSE»«qt.unit» «qt.mesure»«ENDIF»'''
+	def dispatch compile(Quantificateurs qt) '''«IF qt.equals("càc")|| qt.equals("cc")»cuillère à café«ELSEIF qt.equals("càs")|| qt.equals("cs")»cuillère à soupe«ELSE»«qt.unit»«qt.mesure»«ENDIF»'''
 
    def dispatch compile(Ustensils usts) '''
 	\begin{itemize}
@@ -76,7 +76,7 @@ class RecipeGenerator extends AbstractGenerator {
 	\end{itemize}
 	'''
 
-   def dispatch compile(Ustensil ust) '''«ust.name.compile» «IF ust.tag!==null»(«ust.tag»)«ENDIF»'''
+   def dispatch compile(Ustensil ust) '''«ust.name.compile»'''
    
    def dispatch compile(Instructions insts) '''
 	\begin{enumerate}
@@ -88,10 +88,9 @@ class RecipeGenerator extends AbstractGenerator {
 
    def dispatch compile(Instruction inst) '''
 	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
-		«IF inst.preparation!==null» donne «inst.preparation.compile»«ENDIF»
 	''' //TODO remove les guillemets pour comments
 	
-	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile»«ELSEIF param.tag!=null»«param.tag»«ENDIF»'''
+	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile»«ELSEIF param.tag!=null»«param.tag» «ENDIF»'''
 
 	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
 	
