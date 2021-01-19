@@ -4,12 +4,111 @@
 package cuisine.recipe.ui.outline;
 
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
-
+import cuisine.recipe.recipe.*;
 /**
  * Customization of the default outline structure.
  *
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#outline
  */
 public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
+	public Object _text(Technique technique) {
+		if(!(technique==null)) {
+			return technique.getName();
+		}
+		return technique;
+	}
+	
+	public Object _text(ParamTechnique param) {
+		if(!(param.getObject()==null)) {
+			return param.getObject();
+		} else if(!(param.getObjectFac()==null)) {
+			return "facultatif "+param.getObjectFac();
+		} else {
+			return "Choices";
+		}
+	}
+	
+	public Object _text(Choices choices) {
+		if(choices.getChoix()!=null) {
+			return "[]";
+		} else {
+			return "Choices";
+		}
+	}
+	
+	
+	public Object _text(Recipe recipe) {
+		return _text(recipe.getName());
+	}
 
+   public Object _text(Ingredients ingrs) {
+	   return "ingredients";  
+   }
+	
+	public Object _text(Ingredient ing) {
+		return _text(ing.getName());
+	}
+	
+	public Object _text(Quantite qte) {
+		if(qte.getQt()==0.0) {
+			return "quelques";
+		} else {
+			return qte.getQt()+"";
+		}
+	}
+	
+	public Object _text(Quantificateurs qt) {
+		if(qt.getMesure().equals("càc")||qt.getMesure().equals("cc")) {
+			return "cuillère à café";
+		} else if(qt.getMesure().equals("càs")||qt.getMesure().equals("cs")) {
+			return "cuillère à soupe";
+		} else {
+			return qt.getMesure();
+		}
+	}
+
+   public Object _text(Ustensils usts) {
+	return "Ustensils";
+	   
+   }
+
+   public Object _text(Ustensil ust) {
+	return _text(ust.getName());	   
+   }
+   
+   public Object _text(Instructions insts) {
+	return "Instructions";
+   }
+
+   public Object _text(Instruction inst) {
+	return inst.getTechnique();
+   }
+   
+	public Object _text(InstructionParameter param) {
+		if(!(param.getAtag()==null)) {
+			return "@"+param.getAtag();
+		} else if(!(param.getHtag()==null)) {
+			return "#"+param.getHtag();
+		} else if(!(param.getQt()==null)) {
+			return param.getQte()+" "+param.getQt();
+		} else if(!(param.getTime()==null)) {
+			return param.getQte()+" "+param.getTime();
+		}else if(!(param.getTemp()==null)) {
+			return param.getQte()+" "+param.getTemp();
+		}else {
+			return _text(param.getParameter());
+		}
+	}
+
+	public Object _text(CustomString str) {
+		String st = "";
+		for(String s : str.getName()) {
+			st+=s+" ";
+		}
+		return st;
+	}
+
+	public Object _text(Model model) {
+		return "Livre de recette";
+	}
 }
