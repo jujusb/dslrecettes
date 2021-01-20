@@ -3,6 +3,9 @@
  */
 package cuisine.recipe.ui.outline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
 import cuisine.recipe.recipe.*;
 /**
@@ -11,6 +14,7 @@ import cuisine.recipe.recipe.*;
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#outline
  */
 public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
+	Recipe currentRecipe;
 	public Object _text(Technique technique) {
 		if(!(technique==null)) {
 			return technique.getName();
@@ -38,6 +42,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 	
 	
 	public Object _text(Recipe recipe) {
+		currentRecipe=recipe;
 		return _text(recipe.getName());
 	}
 
@@ -86,9 +91,9 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
    
 	public Object _text(InstructionParameter param) {
 		if(!(param.getAtag()==null)) {
-			return "@"+param.getAtag();
+			return "@"+param.getAtag(); //_text(getIngredientOrUstensilFromATag(param.getAtag())
 		} else if(!(param.getHtag()==null)) {
-			return "#"+param.getHtag();
+			return "#"+param.getHtag(); //getIngredientsFromHTag(param.getHtag())
 		} else if(!(param.getQt()==null)) {
 			return param.getQte()+" "+param.getQt();
 		} else if(!(param.getTime()==null)) {
@@ -96,7 +101,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		}else if(!(param.getTemp()==null)) {
 			return param.getQte()+" "+param.getTemp();
 		}else {
-			return _text(param.getParameter());
+			return _text(param.getParameter()); //getIngredientOrUstensilFromName(param.getParameter())
 		}
 	}
 
@@ -110,5 +115,35 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 
 	public Object _text(Model model) {
 		return "Livre de recette";
+	}
+	
+	public String getIngredientOrUstensilFromATag(String atag) {
+		for(Ingredient i : currentRecipe.getIngredients().getIngr()) {
+			if(i.getTag()!=null) {
+				if(i.getTag().equals(atag)) {
+					return (String) _text(i.getName());
+				}
+			}
+		}
+		for(Ustensil u : currentRecipe.getUstensils().getUst()) {
+			if(u.getTag()!=null) {
+				if(u.getTag().equals(atag)) {
+					return (String) _text(u.getName());
+				}
+			}
+		}
+		return null;
+	}
+	
+	public List<String> getIngredientsFromHTag(String htag) {
+		List<String> ingredients=new ArrayList<>();
+		for(Ingredient i : currentRecipe.getIngredients().getIngr()) {
+			if(i.getGroup()!=null) {
+				if(i.getGroup().equals(htag)) {
+					ingredients.add((String) _text(i.getName()));
+				}
+			}
+		}
+		return ingredients;
 	}
 }

@@ -3,22 +3,24 @@
  */
 package cuisine.recipe.generator
 
+import cuisine.recipe.recipe.CustomString
+import cuisine.recipe.recipe.Ingredient
+import cuisine.recipe.recipe.Ingredients
+import cuisine.recipe.recipe.Instruction
+import cuisine.recipe.recipe.InstructionParameter
+import cuisine.recipe.recipe.Instructions
+import cuisine.recipe.recipe.Model
+import cuisine.recipe.recipe.Quantificateurs
+import cuisine.recipe.recipe.Quantite
+import cuisine.recipe.recipe.Recipe
+import cuisine.recipe.recipe.Ustensil
+import cuisine.recipe.recipe.Ustensils
+import java.util.ArrayList
+import java.util.List
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import cuisine.recipe.recipe.Model
-import cuisine.recipe.recipe.Recipe
-import cuisine.recipe.recipe.Ingredients
-import cuisine.recipe.recipe.Ustensils
-import cuisine.recipe.recipe.Ustensil
-import cuisine.recipe.recipe.Ingredient
-import cuisine.recipe.recipe.Instructions
-import cuisine.recipe.recipe.Quantite
-import cuisine.recipe.recipe.Quantificateurs
-import cuisine.recipe.recipe.Instruction
-import cuisine.recipe.recipe.InstructionParameter
-import cuisine.recipe.recipe.CustomString
 
 /**
  * Generates code from your model files on save.
@@ -26,15 +28,19 @@ import cuisine.recipe.recipe.CustomString
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class RecipeGenerator extends AbstractGenerator {
+	Model globalmodel
+	Recipe currentRecipe
+	
 	override void doGenerate(Resource res, IFileSystemAccess2 fsa, IGeneratorContext ctx){
 		fsa.generateFile(res.URI.trimFileExtension.appendFileExtension("tex").lastSegment,
 			res.allContents.filter(Model).toIterable.head.compile.toString
 		)
+		globalmodel=res.allContents.filter(Model).toIterable.head
 	}
 
 	def dispatch compile(Object object) '''this statement is not supported:«object»'''
 	
-	def dispatch compile(Recipe recipe) '''\section{«recipe.name.compile»}
+	def dispatch compile(Recipe recipe) '''«getRecipe(recipe)»\section{«recipe.name.compile»}
 Preparation et cuisson:«recipe.time» minutes
 
 
@@ -91,7 +97,7 @@ Instructions:
 	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
 	''' //TODO remove les guillemets pour comments
 
-	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»@«param.atag» «ELSEIF param.htag!=null»#«param.htag» «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
+	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»«getIngredientOrUstensilFromATag(param.atag).compile» «ELSEIF param.htag!=null»[«FOR s : getIngredientsFromHTag(param.htag)»«s.compile» «ENDFOR»] «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
 
 	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
 	
@@ -123,5 +129,38 @@ Instructions:
 «ENDFOR»
 \end{document}
 «ENDIF»
-'''
+'''	
+	def void getRecipe(Recipe r) {
+		currentRecipe=r
+	}
+	
+	def CustomString getIngredientOrUstensilFromATag(String atag) {
+		for(Ingredient i : currentRecipe.ingredients.ingr) {
+			if(i.tag!==null) {
+				if(i.tag.equals(atag)) {
+					return i.name;
+				}
+			}
+		}
+		for(Ustensil u : currentRecipe.ustensils.ust) {
+			if(u.tag!==null) {
+				if(u.tag.equals(atag)) {
+					return u.name;
+				}
+			}
+		}
+	}
+	
+	List<CustomString> ingredients;
+	def List<CustomString> getIngredientsFromHTag(String htag) {
+		ingredients=new ArrayList
+		for(Ingredient i : currentRecipe.ingredients.ingr) {
+			if(i.group!==null) {
+				if(i.group.equals(htag)) {
+					ingredients.add(i.name);
+				}
+			}
+		}
+		return ingredients;
+	}
 }

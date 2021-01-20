@@ -1,5 +1,3 @@
-
-
 define grill [ustensil] ingredient
 define grease [ustensil]
 define reserve [quantity] ingredient [ustensil]
@@ -26,7 +24,7 @@ define poser ingredient preparation
 define laisser_refroidir preparation
 
 recipe {
-    name : Roscon de Reyes Receta navideña
+	name : Roscon de Reyes Receta navideña
     
     time : 360
 
@@ -40,7 +38,7 @@ recipe {
     	levure sèche de boulangerie: 4.5 g #pate @pre_levure,
     	farine semicomplète: 550g #pate @pate_farine,
     	lait entier tiède: 0.1L #pate @pate_lait,
-    	levure de boulangerie: 12.5 g #pate @pate_levure,	
+    	levure de boulangerie: 12.5 g #pate @pate_levure,
     	levure sèche de boulangerie: 8 g #pate @pate_levure,
     	oeufs: 3 #pate @pate_oeufs,
     	orange:1 #pate @orange,
@@ -48,15 +46,14 @@ recipe {
     	beurre en pommade:100g #pate @pate_beurre,
     	essence d'orange : 0.003l #pate @essence_orange,
     	sucre: 200 g #pate @pate_sucre,
-    	rhom: 2 cs #pate,
+    	rhom: 2 cs #pate @rhom,
     	essence de vanille : 1 cc #pate @essence_vanille,
-    	sel: 0.5 cc #pate,
+    	sel: 0.5 cc #pate @sel,
     	oeufs: 2 #deco @oeufs_deco,
     	lait : 1 cc #deco @lait_deco,
     	eau: 2 cc #deco @eau_deco,
     	fruits confits: any #deco @fruit_confit_deco
     }
-	    
     ustensils: {
     	grand bol @gbol,
     	petit bol @pbol,
@@ -74,14 +71,14 @@ recipe {
 		    
    instructions: {
    		verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-      	verser @pre_farine, @bol -> melange;
+      	verser @pre_farine, @pbol -> melange;
       	trou_centre melange;
-      	verser @lait_avec_levure, melange -> melange;
+      	verser lait_avec_levure, melange -> melange;
       	mix @cuil, melange;
       	mix @mains, melange -> boule;
       	faire_croix boule;
       	submerger boule, @eau "qui tombe au fond puis au bout de 10 minutes monte à la surface et aura doublée de taille";
-      	reserve boule, bol;
+      	reserve boule, @pbol;
       	tamiser @pate_farine -> farine_tamisée;
       	verser farine_tamisée, @gbol -> farine_dans_bol;
       	reserve 4cc, farine_tamisée "pour engorger la pate" -> reste_farine;
@@ -90,15 +87,15 @@ recipe {
       	laver_secher citron;
       	rayer citron -> zeste_citron;
       	reserve zeste_orange, zeste_citron, assiette -> zestes;
-      	verser sucre, oeufs, gbol -> oeufs_sucre;
+      	verser sucre, oeufs, @gbol -> oeufs_sucre;
       	mix oeufs_sucre;
       	verser zestes, @essence_vanille, @rhom, @sel, oeufs_sucre -> mix_oeuf_sucre_zestes;
       	mix mix_oeuf_sucre_zestes;
-      	verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-      	trou_centre @farine_dans_bol;
-      	verser @lait_avec_levure, mix_oeuf_sucre_zestes, @farine_dans_bol -> melange;
+      	verser @pate_levure, @pate_lait, @pbol -> lait_avec_levure;
+      	trou_centre farine_dans_bol;
+      	verser lait_avec_levure, mix_oeuf_sucre_zestes, farine_dans_bol -> melange;
       	mix cuillere_en_bois, melange;
-      	ajouter @beurre, @essence_orange, boule, melange -> début_pate;
+      	ajouter @pate_beurre, @essence_orange, boule, melange -> début_pate;
       	mix @cuillere_en_bois, début_pate "pendant 5 minutes";
    		preparer zoneAmasage;
    		verser reste_farine, zoneAmasage;

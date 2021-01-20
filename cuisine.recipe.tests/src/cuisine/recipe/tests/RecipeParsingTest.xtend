@@ -101,63 +101,64 @@ class RecipeParsingTest {
 			define peindre preparation  preparation
 			define humidifier ingredient [ustensil]
 			define poser ingredient preparation
-			define laisser_refroidir preparation 
+			define laisser_refroidir preparation
 			
 			recipe {
-			    name : Roscón de Reyes Receta navideña
-			
+				name : Roscon de Reyes Receta navideña
+			    
 			    time : 360
 			
 			    nb_pers : 10
-			
-			ingredients: {
+			    
+			    ingredients: {
 			    	farine semicomplète : 150g #preferment @pre_farine,
-			    	lait entier tiède: 0.1 l #preferment @pre_lait,
+			    	lait entier tiède: 0.1L #preferment @pre_lait,
 			    	sucre : 1 cc @pre_sucre,
 			    	levure de boulangerie: 12.5 g #pate @pre_levure,
 			    	levure sèche de boulangerie: 4.5 g #pate @pre_levure,
 			    	farine semicomplète: 550g #pate @pate_farine,
-			    	levure de boulangerie: 12.5 g #pate @pate_levure,	
+			    	lait entier tiède: 0.1L #pate @pate_lait,
+			    	levure de boulangerie: 12.5 g #pate @pate_levure,
 			    	levure sèche de boulangerie: 8 g #pate @pate_levure,
-			    	lait entier tiède: 0.1 l #pate @pate_lait,
 			    	oeufs: 3 #pate @pate_oeufs,
 			    	orange:1 #pate @orange,
 			    	citron:1 #pate @citron,
 			    	beurre en pommade:100g #pate @pate_beurre,
+			    	essence d'orange : 0.003l #pate @essence_orange,
 			    	sucre: 200 g #pate @pate_sucre,
-			    	essence d'orange : 0.03 l #pate @essence_orange,
-			    	rhom: 2 cs #pate,
+			    	rhom: 2 cs #pate @rhom,
 			    	essence de vanille : 1 cc #pate @essence_vanille,
-			    	sel: 0.5 cc #pate,
+			    	sel: 0.5 cc #pate @sel,
 			    	oeufs: 2 #deco @oeufs_deco,
 			    	lait : 1 cc #deco @lait_deco,
 			    	eau: 2 cc #deco @eau_deco,
 			    	fruits confits: any #deco @fruit_confit_deco
 			    }
-							    
 			    ustensils: {
 			    	grand bol @gbol,
 			    	petit bol @pbol,
 			    	bol avec eau tiède @eau,
 			    	cuillère ou fourchette @cuil,
+			    	cuillere en bois @cuillere_en_bois,
 			    	mains @mains,
 			    	plaque,
 			    	four,
 			    	fouet,
 			    	assiette,
-			    	zoneAmasage
+			    	zoneAmasage,
+			    	torchon
 			    }
 					    
 			   instructions: {
 			   		verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-			      	verser @pre_farine, @bol -> melange;
+			      	verser @pre_farine, @pbol -> melange;
 			      	trou_centre melange;
-			      	verser @lait_avec_levure, melange -> melange;
+			      	verser lait_avec_levure, melange -> melange;
 			      	mix @cuil, melange;
 			      	mix @mains, melange -> boule;
 			      	faire_croix boule;
 			      	submerger boule, @eau "qui tombe au fond puis au bout de 10 minutes monte à la surface et aura doublée de taille";
-			      	reserve boule, bol;
+			      	reserve boule, @pbol;
 			      	tamiser @pate_farine -> farine_tamisée;
 			      	verser farine_tamisée, @gbol -> farine_dans_bol;
 			      	reserve 4cc, farine_tamisée "pour engorger la pate" -> reste_farine;
@@ -166,16 +167,16 @@ class RecipeParsingTest {
 			      	laver_secher citron;
 			      	rayer citron -> zeste_citron;
 			      	reserve zeste_orange, zeste_citron, assiette -> zestes;
-			      	verser sucre, oeufs, gbol -> oeufs_sucre;
+			      	verser sucre, oeufs, @gbol -> oeufs_sucre;
 			      	mix oeufs_sucre;
 			      	verser zestes, @essence_vanille, @rhom, @sel, oeufs_sucre -> mix_oeuf_sucre_zestes;
 			      	mix mix_oeuf_sucre_zestes;
-			      	verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-			      	trou_centre @farine_dans_bol;
-			      	verser @lait_avec_levure, mix_oeuf_sucre_zestes, @farine_dans_bol -> melange;
+			      	verser @pate_levure, @pate_lait, @pbol -> lait_avec_levure;
+			      	trou_centre farine_dans_bol;
+			      	verser lait_avec_levure, mix_oeuf_sucre_zestes, farine_dans_bol -> melange;
 			      	mix cuillere_en_bois, melange;
-			      	ajouter @beurre, @essence_orange, boule, melange -> début_pate;
-			      	mix cuillere_en_bois, début_pate "pendant 5 minutes";
+			      	ajouter @pate_beurre, @essence_orange, boule, melange -> début_pate;
+			      	mix @cuillere_en_bois, début_pate "pendant 5 minutes";
 			   		preparer zoneAmasage;
 			   		verser reste_farine, zoneAmasage;
 			   		sortir début_pate, @gbol;
