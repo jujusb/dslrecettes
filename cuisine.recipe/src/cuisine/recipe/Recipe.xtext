@@ -52,7 +52,7 @@ Quantificateurs:
 ;
 
 Mesure:
-	("k" | "h" | "da" | "d" | "c" | "m" )? ("g" | "L"| "l") | "càc" | "cc" | "càs" | "cs" 
+	"kg" | "hg" | "dag" | "g" | "dg" | "cg" | "mg" | "kl" | "hl" | "dal" | "l" | "dl" | "cl" | "ml"| "kL" | "hL" | "daL" | "L" | "dL" | "cL" | "mL" | "càc" | "cc" | "càs" | "cs" 
 ;
 
 
