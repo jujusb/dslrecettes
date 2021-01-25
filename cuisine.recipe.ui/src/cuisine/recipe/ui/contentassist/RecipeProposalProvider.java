@@ -3,10 +3,202 @@
  */
 package cuisine.recipe.ui.contentassist;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
+import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
+
+import cuisine.recipe.recipe.*;
 /**
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#content-assist
  * on how to customize the content assistant.
  */
 public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
+	Ingredients currentIngredientsRecipe;
+	Ustensils currentUstensilsRecipe;
+	List<Technique> techniquesList;
+	List<String> paramsTechniques = new ArrayList<>();
+	List<String> paramsQuantificateur = new ArrayList<>();
+	
+	public RecipeProposalProvider() {	
+		Collections.addAll(paramsQuantificateur,"kg" , "hg" , "dag" , "g" , "dg" , "cg" , "mg" , "kl" , "hl" , "dal" , "l" , "dl" , "cl" , "ml", "kL" , "hL" , "daL" , "L" , "dL" , "cL" , "mL" , "càc" , "cc" , "càs" , "cs");
+		Collections.addAll(paramsTechniques,"ingredient","ustensil","preparation","temperature","tool","quantity","time");		
+	}
+	@Override
+	public void completeModel_DefTechniques(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeModel_DefTechniques(model, assignment, context, acceptor);
+		String proposal = "define <nametechnique>";
+		acceptor.accept(createCompletionProposal(proposal, context));
+		
+	}
+	
+	public void completeModel_Recipes(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeModel_Recipes(model, assignment, context, acceptor);
+		String proposal = "recipe {\n"
+				+ "	name: <name>\n"
+				+ "	time: <time (in min)>\n"
+				+ "	nb_pers: <nb>\n"
+				+ "	ingredients:{\n"
+				+ "	}\n"
+				+ "	ustensils:{\n"
+				+ "	}\n"
+				+ "	instructions: {\n"
+				+ "	}\n"
+				+ "}\n";
+		acceptor.accept(createCompletionProposal(proposal, context));
+	}
+	
+	public void completeTechnique_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeTechnique_Name(model, assignment, context, acceptor);
+	}
+	
+	public void completeTechnique_Param(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeTechnique_Param(model, assignment, context, acceptor);
+		
+		for(String proposal: paramsTechniques) {
+			acceptor.accept(createCompletionProposal(proposal, context));
+			acceptor.accept(createCompletionProposal("[" + proposal+ "]" , context));
+		}
+	}
+	
+	public void completeParamTechnique_ObjectFac(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeParamTechnique_ObjectFac(model, assignment, context, acceptor);
+		for(String proposal: paramsTechniques) {
+			acceptor.accept(createCompletionProposal(proposal, context));
+		}
+	}
+	public void completeParamTechnique_Object(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeParamTechnique_Object(model, assignment, context, acceptor);
+	}
+	
+	public void completeParamTechnique_Choices(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeParamTechnique_Choices(model, assignment, context, acceptor);
+	}
+	
+	public void completeChoices_Choix(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeChoices_Choix(model, assignment, context, acceptor);
+	}
+	
+	public void completeChoices_Choices(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeChoices_Choices(model, assignment, context, acceptor);
+	}
+	
+	public void completeRecipe_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Name(model, assignment, context, acceptor);
+	}
+	
+	public void completeRecipe_Time(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Time(model, assignment, context, acceptor);
+	}
+	public void completeRecipe_Nb(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Nb(model, assignment, context, acceptor);
+	}
+	public void completeRecipe_Ingredients(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Ingredients(model, assignment, context, acceptor);
+		String proposal = "ingredients:{\n"
+				+ "	}\n";
+		acceptor.accept(createCompletionProposal(proposal, context));
+
+	}
+	public void completeRecipe_Ustensils(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Ustensils(model, assignment, context, acceptor);
+		String proposal = "ustensils:{\n"
+				+ "	}\n";
+		acceptor.accept(createCompletionProposal(proposal, context));
+	}
+	public void completeRecipe_Instructions(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeRecipe_Instructions(model, assignment, context, acceptor);
+		String proposal = "instructions: {\n"
+				+ "	}\n";
+		acceptor.accept(createCompletionProposal(proposal, context));
+	}
+	public void completeUstensils_Ust(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeUstensils_Ust(model, assignment, context, acceptor);
+	}
+	public void completeUstensil_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeUstensil_Name(model, assignment, context, acceptor);
+	}
+	public void completeUstensil_Tag(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeUstensil_Tag(model, assignment, context, acceptor);
+	}
+	public void completeIngredients_Ingr(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeIngredients_Ingr(model, assignment, context, acceptor);
+	}
+	public void completeIngredient_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeIngredient_Name(model, assignment, context, acceptor);
+	}
+	
+	public void completeIngredient_Qte(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeIngredient_Qte(model, assignment, context, acceptor);
+		String proposal = "any";
+		acceptor.accept(createCompletionProposal(proposal, context));
+	}
+	
+	public void completeIngredient_Group(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeIngredient_Group(model, assignment, context, acceptor);
+	}
+	public void completeIngredient_Tag(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeIngredient_Tag(model, assignment, context, acceptor);
+	}
+	public void completeQuantite_Qt(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeQuantite_Qt(model, assignment, context, acceptor);
+		
+	}
+	public void completeQuantite_Quantificateur(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeQuantite_Quantificateur(model, assignment, context, acceptor);
+	}
+	public void completeQuantificateurs_Mesure(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeQuantificateurs_Mesure(model, assignment, context, acceptor);
+		for(String proposal: paramsQuantificateur) {
+			acceptor.accept(createCompletionProposal(proposal, context));
+		}
+	}
+	
+	public void completeInstructions_Inst(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructions_Inst(model, assignment, context, acceptor);
+	}
+	public void completeInstruction_Technique(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Technique(model, assignment, context, acceptor);
+		List<String> techniques = new ArrayList<>();
+		
+	}
+	public void completeInstruction_Parameters(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Parameters(model, assignment, context, acceptor);
+	}
+	public void completeInstruction_Comment(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Comment(model, assignment, context, acceptor);
+	}
+	public void completeInstruction_Preparation(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Preparation(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Parameter(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Parameter(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Htag(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Htag(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Atag(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Atag(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Qte(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Qte(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Qt(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Qt(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Time(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Time(model, assignment, context, acceptor);
+	}
+	public void completeInstructionParameter_Temp(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Temp(model, assignment, context, acceptor);
+	}
+	public void completeCustomString_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeCustomString_Name(model, assignment, context, acceptor);
+	}
 }
