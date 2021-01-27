@@ -49,33 +49,67 @@ class RecipeParsingTest {
 			'''define pour ingredient [ustensil] [preparation]''',
 			'''define grill [ustensil] ingredient
 				define grease [ustensil]''',
-			'''recipe {
-				    name : Gaufres Trotro (lardons Cheddar et p'tits oignons)
-				
-				    time : 15
-				
-				    nb_pers : 9
-				    
-				    ingredients: {
-				        Lardons Fumés : 100g @lardons,
-				        Farine t55 : 140g #sec @farine55,
-				        Sel : 1càc #sec
-				    }
-				    
-				    ustensils: {
-				        Poele,
-				        Petit bol,
-				        Gaufrier,
-				        Fouet
-				    }
-				    
-				    instructions: {
-				        grill Poele, Lardons Fumés "Biens dorés et croustillants";
-				        mix Fouet, #sec, Petit bol;
-				        pour #sec -> pate;
-				        grease Gaufrier chaud -> Gaufrier chaud et graissé
-				    }
+			'''define grill [ustensil] ingredient
+			define grease [ustensil]
+			define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
+			define reserve ingredient
+			define heat ustensil [temperature]
+			define mix [ustensil] ingredient [preparation]
+			define pour ingredient [ustensil] [preparation]
+			define distribute ingredient preparation
+			define cook ingredient [ustensil]
+			define put_in ingredient [ustensil]
+			
+			recipe {
+				name : Gaufres Trotro (lardons Cheddar et petits oignons)
+			    
+			    time : 15
+			    
+			    nb_pers : 9.5
+			        
+			    ingredients : {
+			    	Lardons Fumés : 100g @lardons,
+			        Farine t55 : 140g #sec @farine,
+			        Bicarbonate : 0.5cc #sec,
+			        Levure chimique : 0.8cc #sec @levure,
+			        Sel marin : 1càc #sec @sel,
+			        Sucre : 1cs #sec,
+			        prika fumé piquant : 1cc #sec @paprika,
+			        Oeuf : 1.5 #liquide,
+			        Buttermilk du cul : 240g #liquide @lait,
+			        Beurre fondu : 15g #liquide @beurre,
+			        Graisse des lardons cuits : 1cc #liquide @graisseLC,
+			        Cheddar rapé : 100g @cheddar,
+			        Petits oignons émincées : 4 @oignons,
+			        Oeuf frit : 1 #aled,
+			        Sirop d'érable : any #aled
 				}
+			        
+			    ustensils : {
+			        Poele,
+			        Gauffrier,
+			        fouet,
+			        Grand bol,
+			        Petit bol,
+			        Louche,
+			    	Four
+			    }
+			        
+			    instructions: {
+			    	grill Poele, Lardons Fumés "Biens dorés et croustillants";
+			        cut Lardons Fumés, small bits -> lardons;
+			        reserve Graisse des lardons cuits, 1cs "A ajouter aux ingrédients liquides";
+			        heat Gaufrier -> Gaufrier chaud;
+			        mix Fouet, #sec, Petit bol;
+			        mix #liquide, Grand bol;
+			        pour #sec, #liquide -> pate;
+			        mix fouet, pate "Plus de trace de farine";
+			        distribute lardons, @cheddar, Petits oignons émincées, pate;
+			        grease Gaufrier chaud -> Gaufrier chaud et graissé;
+			        pour pate, Louche, Gaufrier chaud et graissé -> Gaufre;
+			        cook Gaufre "Dorées et fondantes"
+			    }
+			}
 			''',
 			'''
 			define grill [ustensil] ingredient
@@ -112,19 +146,20 @@ class RecipeParsingTest {
 			    
 			    ingredients: {
 			    	farine semicomplète : 150g #preferment @pre_farine,
-			    	lait entier tiède: 0.1L #preferment @pre_lait,
+			    	lait entier tiède: 10 dL #preferment @pre_lait,
 			    	sucre : 1 cc @pre_sucre,
 			    	levure de boulangerie: 12.5 g #pate @pre_levure,
 			    	levure sèche de boulangerie: 4.5 g #pate @pre_levure,
 			    	farine semicomplète: 550g #pate @pate_farine,
-			    	lait entier tiède: 0.1L #pate @pate_lait,
+			    	lait entier tiède: 10 dL #pate @pate_lait,
 			    	levure de boulangerie: 12.5 g #pate @pate_levure,
 			    	levure sèche de boulangerie: 8 g #pate @pate_levure,
 			    	oeufs: 3 #pate @pate_oeufs,
 			    	orange:1 #pate @orange,
 			    	citron:1 #pate @citron,
+			    	fève:1,
 			    	beurre en pommade:100g #pate @pate_beurre,
-			    	essence d'orange : 0.003l #pate @essence_orange,
+			    	essence d'orange : 30cl #pate @essence_orange,
 			    	sucre: 200 g #pate @pate_sucre,
 			    	rhom: 2 cs #pate @rhom,
 			    	essence de vanille : 1 cc #pate @essence_vanille,
@@ -141,6 +176,7 @@ class RecipeParsingTest {
 			    	cuillère ou fourchette @cuil,
 			    	cuillere en bois @cuillere_en_bois,
 			    	mains @mains,
+			    	doigts,
 			    	plaque,
 			    	four,
 			    	fouet,
@@ -174,15 +210,15 @@ class RecipeParsingTest {
 			      	verser @pate_levure, @pate_lait, @pbol -> lait_avec_levure;
 			      	trou_centre farine_dans_bol;
 			      	verser lait_avec_levure, mix_oeuf_sucre_zestes, farine_dans_bol -> melange;
-			      	mix cuillere_en_bois, melange;
+			      	mix cuillere en bois, melange;
 			      	ajouter @pate_beurre, @essence_orange, boule, melange -> début_pate;
 			      	mix @cuillere_en_bois, début_pate "pendant 5 minutes";
 			   		preparer zoneAmasage;
 			   		verser reste_farine, zoneAmasage;
 			   		sortir début_pate, @gbol;
-			   		amasser début_pate, main "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)";
+			   		amasser début_pate, mains "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)";
 			   		laiser_reposer début_pate, 10min "après 15min d'amassage";
-			   		amasser début_pate, main "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)"->pate;
+			   		amasser début_pate, mains "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)"->pate;
 			   		verser reste_farine, @gbol;
 			   		verser pate, @gbol;
 			   		couvrir pate, torchon "pendant 3h minimum la pate aura doublé ou triplé de volume";
@@ -191,13 +227,13 @@ class RecipeParsingTest {
 			   		ajouter fève, roscon_cru;
 			   		poser roscon_cru, plaque;
 			   		couvrir roscon_cru, torchon "pendant 2h minimum la pate aura doublé ou triplé de volume";
-			   		battre_en_omellette oeuf;
+			   		battre_en_omellette oeufs;
 			   		verser lait, oeufs "pour éviter que l'oeuf ne brule et qu'il soit super joli" -> mélange_lait_oeuf;
 			   		peindre roscon_cru, mélange_lait_oeuf;
 			   		humidifier sucre, @pbol->sucre_granulé;
 			   		mix doigts, sucre_granulé;
 			   		verser sucre_granulé, roscon_cru;
-			   		poser fruits_sec, roscon_cru;
+			   		poser fruits confits, roscon_cru;
 			   		grease four, 200°C;
 			   		grill four, roscon_cru, 20min, 180°C -> roscon_cuit;
 			   		sortir roscon_cuit, four;
