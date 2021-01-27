@@ -4,12 +4,12 @@
 package cuisine.recipe.ui.contentassist;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
@@ -25,6 +25,10 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	List<Technique> techniquesList;
 	List<String> paramsTechniques = new ArrayList<>();
 	List<String> paramsQuantificateur = new ArrayList<>();
+	List<Technique> techniques;
+	List<Ingredient> ingredientsCurrentRecipe;
+	List<Ustensil> ustensilsCurrentRecipe;
+	List<String> preparationsCurrentRecipe= new ArrayList<>();
 	
 	public RecipeProposalProvider() {	
 		Collections.addAll(paramsQuantificateur,"kg" , "hg" , "dag" , "g" , "dg" , "cg" , "mg" , "kl" , "hl" , "dal" , "l" , "dl" , "cl" , "ml", "kL" , "hL" , "daL" , "L" , "dL" , "cL" , "mL" , "càc" , "cc" , "càs" , "cs");
@@ -33,9 +37,8 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	@Override
 	public void completeModel_DefTechniques(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeModel_DefTechniques(model, assignment, context, acceptor);
-		String proposal = "define <nametechnique>";
+		String proposal = "define nametechnique";
 		acceptor.accept(createCompletionProposal(proposal, context));
-		
 	}
 	
 	public void completeModel_Recipes(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -75,6 +78,10 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	}
 	public void completeParamTechnique_Object(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeParamTechnique_Object(model, assignment, context, acceptor);
+		for(String proposal: paramsTechniques) {
+			acceptor.accept(createCompletionProposal(proposal, context));
+			acceptor.accept(createCompletionProposal("[" + proposal+ "]" , context));
+		}
 	}
 	
 	public void completeParamTechnique_Choices(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -96,9 +103,11 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	public void completeRecipe_Time(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeRecipe_Time(model, assignment, context, acceptor);
 	}
+	
 	public void completeRecipe_Nb(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeRecipe_Nb(model, assignment, context, acceptor);
 	}
+	
 	public void completeRecipe_Ingredients(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeRecipe_Ingredients(model, assignment, context, acceptor);
 		String proposal = "ingredients:{\n"
@@ -106,6 +115,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 		acceptor.accept(createCompletionProposal(proposal, context));
 
 	}
+	
 	public void completeRecipe_Ustensils(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeRecipe_Ustensils(model, assignment, context, acceptor);
 		String proposal = "ustensils:{\n"
@@ -118,18 +128,23 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 				+ "	}\n";
 		acceptor.accept(createCompletionProposal(proposal, context));
 	}
+	
 	public void completeUstensils_Ust(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeUstensils_Ust(model, assignment, context, acceptor);
 	}
+	
 	public void completeUstensil_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeUstensil_Name(model, assignment, context, acceptor);
 	}
+	
 	public void completeUstensil_Tag(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeUstensil_Tag(model, assignment, context, acceptor);
 	}
+	
 	public void completeIngredients_Ingr(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeIngredients_Ingr(model, assignment, context, acceptor);
 	}
+	
 	public void completeIngredient_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeIngredient_Name(model, assignment, context, acceptor);
 	}
@@ -163,14 +178,49 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	public void completeInstructions_Inst(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeInstructions_Inst(model, assignment, context, acceptor);
 	}
-	public void completeInstruction_Technique(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeInstruction_Technique(model, assignment, context, acceptor);
-		List<String> techniques = new ArrayList<>();
-		
+	
+	public void completeInstruction_Technique(EObject instruction, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Technique(instruction, assignment, context, acceptor);
+		// Getting the root of the model
+        EObject rootElement = EcoreUtil2.getRootContainer(instruction);
+        // Getting all the instances of Technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+		for(Technique t : candidates) {
+			acceptor.accept(createCompletionProposal(t.getName(), context));
+		}
 	}
-	public void completeInstruction_Parameters(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeInstruction_Parameters(model, assignment, context, acceptor);
+	
+	public void completeInstruction_Parameters(EObject instruction, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstruction_Parameters(instruction, assignment, context, acceptor);
+		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique());
+		Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
+		if(t.getParam().get(0).getObject().equals("ingredient")) {
+			for(Ingredient i : recipe.getIngredients().getIngr()) {
+				acceptor.accept(createCompletionProposal(i.getName().toString(), context));
+				acceptor.accept(createCompletionProposal(i.getTag(), context));
+				acceptor.accept(createCompletionProposal(i.getGroup(), context));
+			}
+		} else if(t.getParam().get(0).getObject().equals("ustensil")) {
+			for(Ustensil u : recipe.getUstensils().getUst()) {
+				acceptor.accept(createCompletionProposal(u.getName().toString(), context));
+				acceptor.accept(createCompletionProposal(u.getTag(), context));
+			}
+		}else if(t.getParam().get(0).getObject().equals("preparation")) {
+			for(String preparation : preparationsCurrentRecipe) {
+				acceptor.accept(createCompletionProposal(preparation, context));
+			}
+		}
 	}
+	
+	public Technique getTechniqueFromName(String name) {
+		for(Technique t : techniques) {
+			if(t.getName().equals(name)) {
+				return t;
+			}
+		}
+		return null;
+	}
+	
 	public void completeInstruction_Comment(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeInstruction_Comment(model, assignment, context, acceptor);
 	}
@@ -200,5 +250,74 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	}
 	public void completeCustomString_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeCustomString_Name(model, assignment, context, acceptor);
+	}
+	
+	public void complete_Model(Model model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		techniques = model.getDefTechniques();
+	}
+	public void complete_Technique(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_ParamTechnique(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		
+	}
+	public void complete_Choices(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_IngrUslTech(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	
+	public void complete_Recipe(Recipe recipe, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		ingredientsCurrentRecipe = recipe.getIngredients().getIngr();
+		ustensilsCurrentRecipe = recipe.getUstensils().getUst();
+	}
+	public void complete_Ustensils(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Ustensil(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Ingredients(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Ingredient(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Quantite(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Quantificateurs(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Mesure(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Instructions(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Instruction(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Timing(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_Temp(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_InstructionParameter(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_CustomString(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_DOUBLE(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_WORD(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
+	}
+	public void complete_COMMENT(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// subclasses may override
 	}
 }
