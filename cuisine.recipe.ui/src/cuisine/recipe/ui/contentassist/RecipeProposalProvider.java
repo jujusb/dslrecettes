@@ -4,7 +4,10 @@
 package cuisine.recipe.ui.contentassist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
@@ -20,20 +23,16 @@ import cuisine.recipe.recipe.*;
  * on how to customize the content assistant.
  */
 public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
-	Ingredients currentIngredientsRecipe;
-	Ustensils currentUstensilsRecipe;
-	List<Technique> techniquesList;
 	List<String> paramsTechniques = new ArrayList<>();
 	List<String> paramsQuantificateur = new ArrayList<>();
-	List<Technique> techniques;
-	List<Ingredient> ingredientsCurrentRecipe;
-	List<Ustensil> ustensilsCurrentRecipe;
 	List<String> preparationsCurrentRecipe= new ArrayList<>();
 	
-	public RecipeProposalProvider() {	
+	public RecipeProposalProvider() {
+		
 		Collections.addAll(paramsQuantificateur,"kg" , "hg" , "dag" , "g" , "dg" , "cg" , "mg" , "kl" , "hl" , "dal" , "l" , "dl" , "cl" , "ml", "kL" , "hL" , "daL" , "L" , "dL" , "cL" , "mL" , "càc" , "cc" , "càs" , "cs");
 		Collections.addAll(paramsTechniques,"ingredient","ustensil","preparation","temperature","tool","quantity","time");		
 	}
+	
 	@Override
 	public void completeModel_DefTechniques(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeModel_DefTechniques(model, assignment, context, acceptor);
@@ -82,22 +81,6 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 			acceptor.accept(createCompletionProposal(proposal, context));
 			acceptor.accept(createCompletionProposal("[" + proposal+ "]" , context));
 		}
-	}
-	
-	public void completeParamTechnique_Choices(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeParamTechnique_Choices(model, assignment, context, acceptor);
-	}
-	
-	public void completeChoices_Choix(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeChoices_Choix(model, assignment, context, acceptor);
-	}
-	
-	public void completeChoices_Choices(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeChoices_Choices(model, assignment, context, acceptor);
-	}
-	
-	public void completeRecipe_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeRecipe_Name(model, assignment, context, acceptor);
 	}
 	
 	public void completeRecipe_Time(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -192,27 +175,88 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	
 	public void completeInstruction_Parameters(EObject instruction, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeInstruction_Parameters(instruction, assignment, context, acceptor);
-		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique());
+		// Getting the root of the model
+        EObject rootElement = EcoreUtil2.getRootContainer(instruction);
+        // Getting all the instances of Technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
 		Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
-		if(t.getParam().get(0).getObject().equals("ingredient")) {
+		int actualsize = ((Instruction)instruction).getParameters().size();
+		System.out.print(actualsize);
+		ParamTechnique param = t.getParam().get(0) ;
+		String value;
+		if(param.getObject()!=null) {
+			value = param.getObject();
+		} else if(param.getObjectFac()!=null) {
+			value = param.getObjectFac();
+		} else {
+			value = "choices";
+		}
+		if(value.equals("ingredient")) {
 			for(Ingredient i : recipe.getIngredients().getIngr()) {
-				acceptor.accept(createCompletionProposal(i.getName().toString(), context));
-				acceptor.accept(createCompletionProposal(i.getTag(), context));
-				acceptor.accept(createCompletionProposal(i.getGroup(), context));
+				acceptor.accept(createCompletionProposal(customStringToString(i.getName()), context));
+				if(i.getTag()!=null) {
+					acceptor.accept(createCompletionProposal("@"+i.getTag(), context));
+				}
+				if(i.getGroup()!=null) {
+					acceptor.accept(createCompletionProposal("#"+i.getGroup(), context));
+				}
 			}
-		} else if(t.getParam().get(0).getObject().equals("ustensil")) {
-			for(Ustensil u : recipe.getUstensils().getUst()) {
-				acceptor.accept(createCompletionProposal(u.getName().toString(), context));
-				acceptor.accept(createCompletionProposal(u.getTag(), context));
-			}
-		}else if(t.getParam().get(0).getObject().equals("preparation")) {
-			for(String preparation : preparationsCurrentRecipe) {
+			for(String preparation : getPreparationListFromRecipe(recipe)) {
 				acceptor.accept(createCompletionProposal(preparation, context));
+			}
+		} else if(value.equals("ustensil") || value.equals("tool")) {
+			for(Ustensil u : recipe.getUstensils().getUst()) {
+				acceptor.accept(createCompletionProposal(customStringToString(u.getName()), context));
+				if(u.getTag()!=null) {
+					acceptor.accept(createCompletionProposal("@"+u.getTag(), context));
+				}
+			}
+		}else if(value.equals("preparation")) {
+			for(String preparation : getPreparationListFromRecipe(recipe)) {
+				acceptor.accept(createCompletionProposal(preparation, context));
+			}
+		} else if(value.equals("choices")){
+			List<String> completions = getListOfChoices(param.getChoices().getChoix());
+			for(String choice :completions) {
+				acceptor.accept(createCompletionProposal(choice, context));
 			}
 		}
 	}
 	
-	public Technique getTechniqueFromName(String name) {
+	public List<String> getListOfChoices(List choices) {
+		List<List<CustomString>> combinaisons = new ArrayList<>(); //getCombinations(choices);
+		List<String> c = new ArrayList<>();
+		for(List<CustomString> list : combinaisons) {
+			String str="";
+			for(CustomString s : list) {
+				str+=customStringToString(s)+" ";
+			}
+			c.add(str);
+		}
+		return c;
+	}
+		
+	public List<String> getPreparationListFromRecipe(Recipe r) {
+		List<String> preparations = new ArrayList<>();
+		for(Instruction i : r.getInstructions().getInst()) {
+			if(i.getPreparation()!=null) {
+				preparations.add(customStringToString(i.getPreparation()));
+			}
+		}
+		return preparations;
+	}
+	
+	
+	public String customStringToString(CustomString custom) {
+		String string = "";
+		for(String s : custom.getName()) {
+			string+=s+" ";
+		}
+		return string;
+	}
+	
+	public Technique getTechniqueFromName(String name, List<Technique> techniques) {
 		for(Technique t : techniques) {
 			if(t.getName().equals(name)) {
 				return t;
@@ -253,7 +297,6 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	}
 	
 	public void complete_Model(Model model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		techniques = model.getDefTechniques();
 	}
 	public void complete_Technique(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		// subclasses may override
@@ -269,9 +312,8 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	}
 	
 	public void complete_Recipe(Recipe recipe, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		ingredientsCurrentRecipe = recipe.getIngredients().getIngr();
-		ustensilsCurrentRecipe = recipe.getUstensils().getUst();
 	}
+	
 	public void complete_Ustensils(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		// subclasses may override
 	}
