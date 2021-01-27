@@ -206,6 +206,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 			}
 		}
 		//List<EObject> preparations = EcoreUtil2.getAllReferencedObjects( r, RecipePackage.Literals.INSTRUCTION__PREPARATION);
+		
 		for(CustomString prep : preparations) {
 			if(_text(prep).equals(_text(s))) {
 				return prep;
