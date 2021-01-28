@@ -3,6 +3,16 @@
  */
 package cuisine.recipe.scoping;
 
+import java.util.List;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.scoping.IScope;
+import org.eclipse.xtext.scoping.Scopes;
+import org.eclipse.xtext.naming.QualifiedName;
+
+import cuisine.recipe.recipe.*;
 
 /**
  * This class contains custom scoping description.
@@ -11,5 +21,21 @@ package cuisine.recipe.scoping;
  * on how and when to use it.
  */
 public class RecipeScopeProvider extends AbstractRecipeScopeProvider {
-
+	@Override
+    public IScope getScope(EObject context, EReference reference) {
+    	// We focus on resolving the ref attribute (so ExpPackage.Literals.VAL_REF__REF) of the ValRef class
+        if (context instanceof Instruction && reference == RecipePackage.Literals.INSTRUCTION__TECHNIQUE) {
+        	// Getting the root of the model
+            EObject rootElement = EcoreUtil2.getRootContainer(context);
+            // Getting all the instances of Val in the model
+            List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+            // Returning all the candidates for the cross-reference
+            return Scopes.scopeFor(
+            		candidates,
+            		// The function that extracts from the val object the string used for the cross-reference
+            		tech -> QualifiedName.create(tech.getName()), 
+            		IScope.NULLSCOPE);
+        }
+        return super.getScope(context, reference);
+    }
 }

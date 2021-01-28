@@ -1,198 +1,191 @@
-Pour travailler avec git, quand une version est rÃ©cupÃ©rÃ©e:
+Pour travailler avec git, quand une version est récupérée:
 - cuisine.recipe -> create a new folder 'src-gen' -> Clean all projects
 - Project -> Clean
 - cuisine.recipe -> src -> cuisine.recipe -> GenerateRecipe.mwe2 -> Run as
 
 Les tests doivent fonctionner
 
-# ModÃ¨le : 
+# Modèle : 
 
-DÃ©claration de techniques
+Déclaration de techniques
 
 {
 Nom recette
 
 Optionnel : Description
 
-Optionnel : Temps de prÃ©paration, cuisson
+Optionnel : Temps de préparation, cuisson
 
-RÃ©fÃ©rence Nombre de personnes
+Référence Nombre de personnes
 
-IngrÃ©dients
+Ingrédients
 - Maybe : ajouter groupes
-- [qte] nom_de_l'ingrÃ©dient #group
+- [qte] nom_de_l'ingrédient #group
 
-Ustensiles (rÃ©cipients, outils, appareil (=bout de la prÃ©paration), etc.): 
+Ustensiles (récipients, outils, appareil (=bout de la préparation), etc.): 
 - nom_ustensile1
 - nom_ustensile2
 - ...
 
 Instructions : 
 - [nom] verbe [ingredient(s)] ustensile [condition]
-- ou : [nom] instruction1, instruction2, instruction3... (qui font rÃ©fÃ©rence au(x) mÃªme ingrÃ©dient(s))
+- ou : [nom] instruction1, instruction2, instruction3... (qui font référence au(x) màªme ingrédient(s))
 }
 
-UnitÃ©s (https://en.wikipedia.org/wiki/Cooking_weights_and_measures)
+Unités (https://en.wikipedia.org/wiki/Cooking_weights_and_measures)
 - g
 - L
-- cÃ c / tsp
+- cà c / tsp
 - cas / tbsp
 - pots de yaourt
 - verre
 - livres
-- pas d'unitÃ©
+- pas d'unité
 - Du
 - ...
 
 # Exemple de Recette : 
 
-## Gaufres Trotro (lardons, Cheddar et pâ€™tits oignons)
+## Gaufres Trotro (lardons, Cheddar et petits oignons)
 
 Matos : un fouet et un gaufrier
 
 Timing : le temps de cuire les lardons et les gaufres
 
-IngrÃ©dients (pour une petite dizaine)
-- 100g de lardons fumÃ©s
+Ingrédients (pour une petite dizaine)
+- 100g de lardons fumés
 - 140g de farine t55
 - 1/2 cc de bicarbonate (1/4 tsp)
 - 1 petite cc de levure chimique (1/2 tsp)
 - 1 cc de sel marin (3/4 tsp)
 - 1 cs de sucre (1 tbsp)
-- 1 petite cc de paprika fumÃ© piquant (ou paprika fumÃ© doux + une pointe de poivre de cayenne)
-- 1 1/2 Å“uf Ã  tempÃ©rature ambiante (voir note)
-- 240g de buttermilk, lait fermentÃ©, lait ribot (ou dâ€™un mÃ©lange maison, voir note), Ã  tempÃ©rature ambiante
+- 1 petite cc de paprika fumé piquant (ou paprika fumé doux + une pointe de poivre de cayenne)
+- 1 1/2 oeuf à  température ambiante (voir note)
+- 240g de buttermilk, lait fermenté, lait ribot (ou d'un mélange maison, voir note), à  température ambiante
 - 15g de beurre fondu
 - 1 cs de graisse des lardons cuits
-- 100g de Cheddar rÃ¢pÃ©
-- 4 pâ€™tits oignons Ã©mincÃ©s (sauf le vert foncÃ©)
-- Un Å“uf frit
-- Du sirop dâ€™Ã©rable
+- 100g de Cheddar rapé
+- 4 petits oignons émincés
+- Un oeuf frit
+- Du sirop d'érable
 Pcq #YOLO
 
 Notes :
-1. Pour compter un Å“uf et demi, casse 1 Å“uf dans un bol posÃ© sur une balance, bats-le lÃ©gÃ¨rement pour mÃ©langer blanc et jaune et garde 30g dâ€™Å“uf. Ou double la recette!
-2. Pour une version vg, tu peux remplacer les lardons par 2 cc de paprika fumÃ© (et la graisse de lardons par 15g de beurre supplÃ©mentaire).
-3. Tu peux remplacer le Cheddar par un fromage Ã  pÃ¢te dure, si possible un avec du goÃ»t (Ã©vite lâ€™emmental).
-4. Les Pâ€™tits oignons sont pour moi ici indispensables, pour leur croustillant et surtout le contraste et le peps quâ€™ils apportent. Tu peux essayer de les remplacer par un petit oignon rouge trÃ¨s finement Ã©mincÃ© (je nâ€™ai pas testÃ©) ou des cornichons.
-5. Pour le buttermilk, tu peux simplement faire un mÃ©lange moitiÃ© lait entier moitiÃ© yaourt entier, avec 1 cuillÃ¨re Ã  soupe de jus de citron, en laissant reposer 10 minutes. Ou utiliser du kÃ©fir.
+1. Pour compter un oeuf et demi, casse 1 oeuf dans un bol posé sur une balance, bats-le légèrement pour mélanger blanc et jaune et garde 30g d'oeuf. Ou double la recette!
+2. Pour une version vg, tu peux remplacer les lardons par 2 cc de paprika fumé (et la graisse de lardons par 15g de beurre supplémentaire).
+3. Tu peux remplacer le Cheddar par un fromage à  pate dure, si possible un avec du goà»t (évite l'emmental).
+4. Les P'tits oignons sont pour moi ici indispensables, pour leur croustillant et surtout le contraste et le peps qu'ils apportent. Tu peux essayer de les remplacer par un petit oignon rouge très finement émincé (je n'ai pas testé) ou des cornichons.
+5. Pour le buttermilk, tu peux simplement faire un mélange moitié lait entier moitié yaourt entier, avec 1 cuillère à  soupe de jus de citron, en laissant reposer 10 minutes. Ou utiliser du kéfir.
 Krrrrrrrrrkrr
 
 ## Transformation
-    1.Fais griller les lardons dans une grande poÃªle jusquâ€™Ã  ce quâ€™ils soient bien dorÃ©s et croustillants.
-    griller [poele] ingrÃ©dient(s) => condition
+    1.Fais griller les lardons dans une grande poàªle jusqu'à  ce qu'ils soient bien dorés et croustillants.
+    griller [poele] ingrédient(s) => condition
     
     Coupe-les en petits morceaux.
     couper ingredient(s) petits
     
-    RÃ©serve 1 cs de graisse de lardons Ã  ajouter aux ingrÃ©dients liquides.
-    rÃ©server ingrÃ©dients(s) (Ã©tape | commentaire)
+    Réserve 1 cs de graisse de lardons à  ajouter aux ingrédients liquides.
+    réserver ingrédients(s) (étape | commentaire)
     
     Fais chauffer ton gaufrier.
     Chauffer ustensile
     
-    2. Dans un petit bol, mÃ©lange tous les ingrÃ©dients secs Ã  lâ€™aide dâ€™un fouet.
-    MÃ©langer [outil] ingrÃ©dients [rÃ©cipient]
+    2. Dans un petit bol, mélange tous les ingrédients secs à  l'aide d'un fouet.
+    Mélanger [outil] ingrédients [récipient]
     
-    3. Dans un grand bol, mÃ©lange les ingrÃ©dients liquides.
-    MÃ©langer [outil] ingrÃ©dients [rÃ©cipient]
+    3. Dans un grand bol, mélange les ingrédients liquides.
+    Mélanger [outil] ingrédients [récipient]
     
-    4. Verse les ingrÃ©dients secs dans les ingrÃ©dients liquides
-    Verser ingrÃ©dients [qtÃ©] [outil] (ingrÃ©dients | prÃ©paration | ustensile avec conditions dessus)
+    4. Verse les ingrédients secs dans les ingrédients liquides
+    Verser ingrédients [qté] [outil] (ingrédients | préparation | ustensile avec conditions dessus)
     
-    mÃ©lange au fouet, en tâ€™arrÃªtant dÃ¨s quâ€™il nâ€™y a plus de traces de farine. 
-    pate = MÃ©langer [outil] ingrÃ©dients [rÃ©cipient] => condition
+    mélange au fouet, en t'arrètant dès qu'il n'y a plus de traces de farine. 
+    pate = Mélanger [outil] ingrédients [récipient] => condition
     
-    RÃ©partis lardons, Cheddar et oignons dans la pÃ¢te.
-    pate = RÃ©partir ingrÃ©dients (ingrÃ©dient | prÃ©paration|ustensile)
+    Répartis lardons, Cheddar et oignons dans la pate.
+    pate = Répartir ingrédients (ingrédient | préparation|ustensile)
     
-    5. Verse une petite louche de pÃ¢te dans chaque cavitÃ© de ton gaufrier trÃ¨s chaud et graissÃ© (attention que les lardons ne restent pas au fond du bol). 
-    Verser ingrÃ©dients [qtÃ©] [outil] (ingrÃ©dients | prÃ©paration|ustensile avec conditions desus)
+    5. Verse une petite louche de pate dans chaque cavité de ton gaufrier très chaud et graissé (attention que les lardons ne restent pas au fond du bol). 
+    Verser ingrédients [qté] [outil] (ingrédients | préparation|ustensile avec conditions desus)
     
-    Cuits jusquâ€™Ã  obtenir des gaufres dorÃ©es et fondantes.
-    Cuire ingrÃ©dients condition
+    Cuits jusqu'à  obtenir des gaufres dorées et fondantes.
+    Cuire ingrédients condition
     
-    RÃ©serve au four prÃ©chauffÃ© Ã  100 degrÃ©s, le temps de tout cuire, ou sers immÃ©diatement.
+    Réserve au four préchauffé à  100 degrés, le temps de tout cuire, ou sers immédiatement.
     Choix:
-    - Mettre_au_four tempÃ©rature condition
+    - Mettre_au_four température condition
     - servir
     
-    SurmontÃ© dâ€™un Å“uf frit oui, 
+    Surmonté d'un oeuf frit oui, 
     
-    dÃ©goulinant de sirop dâ€™Ã©rable, hell yeah.
+    dégoulinant de sirop d'érable, hell yeah.
     
-    See you soon, little spoonâ€¦!
+    See you soon, little spoon!
 
-## EXEMPLE avec mÃ©tamodÃ¨le
-    // DÃ©claration de techniques
+## EXEMPLE avec métamodèle
+    // Déclaration de techniques
+define grill [ustensil] ingredient
+define grease [ustensil]
+define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
+define reserve ingredient
+define heat ustensil [temperature]
+define mix [ustensil] ingredient [preparation]
+define pour ingredient [ustensil] [preparation]
+define distribute ingredient preparation
+define cook ingredient [ustensil]
+define put_in ingredient [ustensil]
+
+recipe {
+	name : Gaufres Trotro (lardons Cheddar et petits oignons)
     
-    define grill [utensil] ingredient
-    define grease [ustensil]
-    define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
-    define reserve ingredient comment
-    define heat ustensil [temperature]
-    define mix [ustensil] ingredient [preparation]
-    define pour ingredient [ustensil] [preparation]
-    define distribute ingredient preparation
-    define cook ingredient [ustensil]
-    define put_in ingredient [ustensil]
+    time : 15
     
-    // Recette(s)
-    recipe {
-        name : Gaufres Trotro (lardons, Cheddar et pâ€™tits oignons)
-    
-        time : 15m 2m
-    
-        nb_pers : 9.5
+    nb_pers : 9.5
         
-        ingredients {
-            Lardons FumÃ©s : 100g @lardons
-            Farine t55 : 140g #sec @farine
-            Bicarbonate : 0.5cÃ c #sec
-            Levure chimique : 0.8cÃ c #sec @levure
-            Sel marin : 1cÃ c #sec @sel
-            Sucre : 1cÃ s #sec
-            Paprika fumÃ© piquant : 1cÃ c #sec @paprika
-            Oeuf : 1.5 #liquide
-            Buttermilk du cul : 240g #liquide @lait
-            Beurre fondu : 15g #liquide @beurre
-            Graisse des lardons cuits : 1cÃ c #liquide @graisseLC
-            Cheddar rapÃ© : 100g @cheddar
-            Petits oignons Ã©mincÃ©s : 4 @oignons
-            Oeuf frit : 1 #aled
-            Sirop d'Ã©rable : any #aled
-        }
+    ingredients : {
+    	Lardons Fumés : 100g @lardons,
+        Farine t55 : 140g #sec @farine,
+        Bicarbonate : 0.5cc #sec,
+        Levure chimique : 0.8cc #sec @levure,
+        Sel marin : 1càc #sec @sel,
+        Sucre : 1cs #sec,
+        prika fumé piquant : 1cc #sec @paprika,
+        Oeuf : 1.5 #liquide,
+        Buttermilk du cul : 240g #liquide @lait,
+        Beurre fondu : 15g #liquide @beurre,
+        Graisse des lardons cuits : 1cc #liquide @graisseLC,
+        Cheddar rapé : 100g @cheddar,
+        Petits oignons émincées : 4 @oignons,
+        Oeuf frit : 1 #aled,
+        Sirop d'érable : any #aled
+	}
         
-        ustensils {
-            Poele
-            Gauffrier
-            Fouet
-            Grand bol
-            Petit bol
-            Louche
-            Four
-        }
-        
-        instructions {
-            grill Poele Lardons FumÃ©s "Biens dorÃ©s et croustillants"
-            cut Lardons FumÃ©s small bits -> lardons
-            reserve Graisse des lardons cuits (1cÃ s) "A ajouter aux ingrÃ©dients liquides"
-            
-            heat Gaufrier -> Gaufrier chaud
-            
-            mix Fouet #sec Petit bol
-            mix #liquide Grand bol
-            pour #sec #liquide -> pate
-            mix fouet pate "Plus de trace de farine"
-            distribute lardons Cheddar Petits Oignons Ã©mincÃ©s, pate
-            
-            grease Gaufrier chaud -> Gaufrier chaud et graissÃ©
-            pour pate Louche Gaufrier chaud et graissÃ© -> Gaufre
-            cook Gaufre "DorÃ©es et fondantes"
-            
-            END
-        }
+    ustensils : {
+        Poele,
+        Gauffrier,
+        fouet,
+        Grand bol,
+        Petit bol,
+        Louche,
+    	Four
     }
-# MÃ©tamodÃ¨le 
+        
+    instructions: {
+    	grill Poele, Lardons Fumés "Biens dorés et croustillants";
+        cut Lardons Fumés, small bits -> lardons;
+        reserve Graisse des lardons cuits, 1cs "A ajouter aux ingrédients liquides";
+        heat Gaufrier -> Gaufrier chaud;
+        mix Fouet, #sec, Petit bol;
+        mix #liquide, Grand bol;
+        pour #sec, #liquide -> pate;
+        mix fouet, pate "Plus de trace de farine";
+        distribute lardons, @cheddar, Petits oignons émincées, pate;
+        grease Gaufrier chaud -> Gaufrier chaud et graissé;
+        pour pate, Louche, Gaufrier chaud et graissé -> Gaufre;
+        cook Gaufre "Dorées et fondantes"
+    }
+}
+# Métamodèle 
 
 ![image](./Metamodele.png)

@@ -3,7 +3,14 @@
  */
 package cuisine.recipe.ui.outline;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.ui.editor.outline.IOutlineNode;
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
+import cuisine.recipe.recipe.*;
 
 /**
  * Customization of the default outline structure.
@@ -11,5 +18,199 @@ import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#outline
  */
 public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
+	List<CustomString> preparations = new ArrayList<>();
+	public Object _text(Technique technique) {
+		if(!(technique==null)) {
+			return technique.getName();
+		}
+		return technique;
+	}
+	
+	public Object _text(ParamTechnique param) {
+		if(!(param.getObject()==null)) {
+			return param.getObject();
+		} else if(!(param.getObjectFac()==null)) {
+			return "facultatif "+param.getObjectFac();
+		} else {
+			return "Choices";
+		}
+	}
+	
+	public Object _text(Choices choices) {
+		if(choices.getChoix()!=null) {
+			return "[]";
+		} else {
+			return "Choices";
+		}
+	}
+	
+	public Object _text(Recipe recipe) {
+		return _text(recipe.getName());
+	}
 
+   public Object _text(Ingredients ingrs) {
+	   return "ingredients";  
+   }
+	
+	public Object _text(Ingredient ing) {
+		return _text(ing.getName());
+	}
+	
+	public Object _text(Quantite qte) {
+		if(qte.getQt()==0.0) {
+			return "quelques";
+		} else {
+			return qte.getQt()+"";
+		}
+	}
+	
+	public Object _text(Quantificateurs qt) {
+		if(qt.getMesure().equals("càc")||qt.getMesure().equals("cc")) {
+			return "cuillère à café";
+		} else if(qt.getMesure().equals("càs")||qt.getMesure().equals("cs")) {
+			return "cuillère à soupe";
+		} else {
+			return qt.getMesure();
+		}
+	}
+
+   public Object _text(Ustensils usts) {
+	return "Ustensils";
+	   
+   }
+
+   public Object _text(Ustensil ust) {
+	return _text(ust.getName());
+   }
+   
+   public Object _text(Instructions insts) {
+	return "Instructions";
+   }
+
+   public Object _text(Instruction inst) {
+	if(inst.getPreparation()!=null) {
+		preparations.add(inst.getPreparation());
+	}
+	return inst.getTechnique();
+   }
+   
+   public void _createChildren(IOutlineNode parent, Instruction instruction) {
+	   // Getting the root of the model
+       EObject rootElement = EcoreUtil2.getRootContainer(instruction);
+       // Getting all the instances of Technique in the model
+       List<Technique> techniques = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+       for(Technique t : techniques) {
+    	   if(t.getName().equals(instruction.getTechnique())) {
+    		   createNode(parent, t);
+    	   }
+       }
+       for(InstructionParameter param : instruction.getParameters()) {
+    	   createNode(parent, param);
+       }
+       if(instruction.getPreparation()!=null) {
+    	   createNode(parent, instruction.getPreparation());
+       }
+	}
+
+   
+   
+	public Object _text(InstructionParameter param) {
+		if(!(param.getAtag()==null)) {
+			return "@"+param.getAtag(); 
+		} else if(!(param.getHtag()==null)) {
+			return "#"+param.getHtag(); 
+		} else if(!(param.getQt()==null)) {
+			return param.getQte()+" "+_text(param.getQt());
+		} else if(!(param.getTime()==null)) {
+			return param.getQte()+" "+param.getTime();
+		}else if(!(param.getTemp()==null)) {
+			return param.getQte()+" "+param.getTemp();
+		}else if(param.getParameter()!=null){
+			return _text(param.getParameter());
+		}
+		return param;
+	}
+	
+    protected boolean _isLeaf(InstructionParameter param) {
+        return false;
+    }
+    
+    public void _createChildren(IOutlineNode parent, InstructionParameter param) {
+    	EObject r = EcoreUtil2.getContainerOfType(param, Recipe.class);
+		if(!(param.getAtag()==null)) {
+			createNode(parent, getIngredientOrUstensilFromATag(param.getAtag(),r));
+		} else if(!(param.getHtag()==null)) {
+			for(Ingredient i : getIngredientsFromHTag(param.getHtag(),r)) {
+				createNode(parent, i);
+			}
+		} else if(!(param.getParameter()==null)) {
+			createNode(parent, (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r));
+		}
+	}
+
+	public Object _text(CustomString str) {
+		String st = "";
+		for(String s : str.getName()) {
+			st+=s+" ";
+		}
+		return st;
+	}
+
+	public Object _text(Model model) {
+		return "Livre de recette";
+	}
+	
+	public EObject getIngredientOrUstensilFromATag(String atag, EObject r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getTag()!=null) {
+				if(i.getTag().equals(atag)) {
+					return i;
+				}
+			}
+		}
+		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+			if(u.getTag()!=null) {
+				if(u.getTag().equals(atag)) {
+					return u;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public List<Ingredient> getIngredientsFromHTag(String htag, EObject r) {
+		List<Ingredient> ingredients=new ArrayList<>();
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getGroup()!=null) {
+				if(i.getGroup().equals(htag)) {
+					ingredients.add(i);
+				}
+			}
+		}
+		return ingredients;
+	}
+	
+	public Object getIngredientOrUstensilOrPreparationFromName(CustomString s, EObject r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getName()!=null) {
+				if(_text(i.getName()).equals(_text(s))) {
+					return i;
+				}
+			}
+		}
+		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+			if(u.getName()!=null) {
+				if(_text(u.getName()).equals(_text(s))) {
+					return u;
+				}
+			}
+		}
+		//List<EObject> preparations = EcoreUtil2.getAllReferencedObjects( r, RecipePackage.Literals.INSTRUCTION__PREPARATION);
+		for(CustomString prep : preparations) {
+			if(_text(prep).equals(_text(s))) {
+				return prep;
+			}
+		}
+		return null;
+	}
 }

@@ -3,6 +3,20 @@
  */
 package cuisine.recipe.generator
 
+import cuisine.recipe.recipe.CustomString
+import cuisine.recipe.recipe.Ingredient
+import cuisine.recipe.recipe.Ingredients
+import cuisine.recipe.recipe.Instruction
+import cuisine.recipe.recipe.InstructionParameter
+import cuisine.recipe.recipe.Instructions
+import cuisine.recipe.recipe.Model
+import cuisine.recipe.recipe.Quantificateurs
+import cuisine.recipe.recipe.Quantite
+import cuisine.recipe.recipe.Recipe
+import cuisine.recipe.recipe.Ustensil
+import cuisine.recipe.recipe.Ustensils
+import java.util.ArrayList
+import java.util.List
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -14,12 +28,139 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class RecipeGenerator extends AbstractGenerator {
+	Model globalmodel
+	Recipe currentRecipe
+	
+	override void doGenerate(Resource res, IFileSystemAccess2 fsa, IGeneratorContext ctx){
+		fsa.generateFile(res.URI.trimFileExtension.appendFileExtension("tex").lastSegment,
+			res.allContents.filter(Model).toIterable.head.compile.toString
+		)
+		globalmodel=res.allContents.filter(Model).toIterable.head
+	}
 
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+	def dispatch compile(Object object) '''this statement is not supported:«object»'''
+	
+	def dispatch compile(Recipe recipe) '''«getRecipe(recipe)»\section{«recipe.name.compile»}
+Preparation et cuisson:«recipe.time» minutes
+
+
+Pour «recipe.nb» personnes
+
+
+Ingrédients:
+«IF recipe.ingredients!==null»«recipe.ingredients.compile»«ENDIF»
+
+
+Ustensils:
+«IF recipe.ustensils!==null»«recipe.ustensils.compile»«ENDIF»
+
+
+Instructions:
+«IF recipe.instructions!==null»«recipe.instructions.compile»«ENDIF»
+
+
+'''
+
+   def dispatch compile(Ustensils usts) '''
+	\begin{itemize}
+	«FOR ing : usts.ust»
+		\item «ing.compile»
+	«ENDFOR»
+	\end{itemize}
+	'''
+
+   def dispatch compile(Ustensil ust) '''«ust.name.compile»'''
+
+   def dispatch compile(Ingredients ingrs) '''
+	\begin{itemize}
+	«FOR ing : ingrs.ingr»
+		\item «ing.compile»
+	«ENDFOR»
+	\end{itemize}
+	'''
+	
+	def dispatch compile(Ingredient ing) '''«IF ing.qte!==null»«ing.qte.compile»«ENDIF»«IF ing.name!==null»«ing.name.compile»«ENDIF»'''
+
+	def dispatch compile(Quantite qte) '''«IF qte.qt==0.0»quelques «ELSEIF qte.quantificateur!==null»«qte.qt» «qte.quantificateur.compile» de «ELSE»«qte.qt» «ENDIF»''' 
+
+	def dispatch compile(Quantificateurs qt) '''«IF qt.mesure.equals("càc")|| qt.mesure.equals("cc")»cuillère à café«ELSEIF qt.mesure.equals("càs")|| qt.mesure.equals("cs")»cuillère à soupe«ELSEIF qt.mesure!==null»«qt.mesure»«ENDIF»'''
+
+   def dispatch compile(Instructions insts) '''
+	\begin{enumerate}
+	«FOR inst : insts.inst»
+		\item «inst.compile»
+	«ENDFOR»
+	\end{enumerate}
+	''' 
+
+   def dispatch compile(Instruction inst) '''
+	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
+	''' //TODO remove les guillemets pour comments
+
+	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»«getIngredientOrUstensilFromATag(param.atag).compile» «ELSEIF param.htag!=null»[«FOR s : getIngredientsFromHTag(param.htag)»«s.compile» «ENDFOR»] «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
+
+	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
+	
+	def dispatch compile(Model model) '''«IF model.recipes.length!==0»\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+\geometry{
+ total={160mm,257mm},
+ left=25mm,
+ top=20mm,
+ tmargin=30mm,
+ bmargin=30mm,
+}
+
+\title{Livre de recettes}
+\author{}
+\date{}
+\begin{document}
+
+\maketitle
+«FOR recipe : model.recipes»
+	«recipe.compile»
+«ENDFOR»
+\end{document}
+«ENDIF»
+'''	
+	def void getRecipe(Recipe r) {
+		currentRecipe=r
+	}
+	
+	def CustomString getIngredientOrUstensilFromATag(String atag) {
+		for(Ingredient i : currentRecipe.ingredients.ingr) {
+			if(i.tag!==null) {
+				if(i.tag.equals(atag)) {
+					return i.name;
+				}
+			}
+		}
+		for(Ustensil u : currentRecipe.ustensils.ust) {
+			if(u.tag!==null) {
+				if(u.tag.equals(atag)) {
+					return u.name;
+				}
+			}
+		}
+	}
+	
+	List<CustomString> ingredients;
+	def List<CustomString> getIngredientsFromHTag(String htag) {
+		ingredients=new ArrayList
+		for(Ingredient i : currentRecipe.ingredients.ingr) {
+			if(i.group!==null) {
+				if(i.group.equals(htag)) {
+					ingredients.add(i.name);
+				}
+			}
+		}
+		return ingredients;
 	}
 }

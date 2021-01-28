@@ -21,63 +21,66 @@ define battre_en_omellette ingredient
 define peindre preparation  preparation
 define humidifier ingredient [ustensil]
 define poser ingredient preparation
-define laisser_refroidir preparation 
+define laisser_refroidir preparation
 
 recipe {
-    name : Roscón de Reyes Receta navideña
-
+	name : Roscon de Reyes Receta navideña
+    
     time : 360
 
     nb_pers : 10
-
+    
     ingredients: {
     	farine semicomplète : 150g #preferment @pre_farine,
-    	lait entier tiède: 100ml #preferment @pre_lait,
+    	lait entier tiède: 10 dL #preferment @pre_lait,
     	sucre : 1 cc @pre_sucre,
     	levure de boulangerie: 12.5 g #pate @pre_levure,
     	levure sèche de boulangerie: 4.5 g #pate @pre_levure,
     	farine semicomplète: 550g #pate @pate_farine,
-    	lait entier tiède: 100ml #pate @pate_lait,
-    	levure de boulangerie: 12.5 g #pate @pate_levure,	
+    	lait entier tiède: 10 dL #pate @pate_lait,
+    	levure de boulangerie: 12.5 g #pate @pate_levure,
     	levure sèche de boulangerie: 8 g #pate @pate_levure,
     	oeufs: 3 #pate @pate_oeufs,
     	orange:1 #pate @orange,
     	citron:1 #pate @citron,
+    	fève:1,
     	beurre en pommade:100g #pate @pate_beurre,
-    	essence d'orange : 30 ml #pate @essence_orange,
+    	essence d'orange : 30cl #pate @essence_orange,
     	sucre: 200 g #pate @pate_sucre,
-    	rhom: 2 cs #pate,
+    	rhom: 2 cs #pate @rhom,
     	essence de vanille : 1 cc #pate @essence_vanille,
-    	sel: 0.5 cc #pate,
+    	sel: 0.5 cc #pate @sel,
     	oeufs: 2 #deco @oeufs_deco,
     	lait : 1 cc #deco @lait_deco,
     	eau: 2 cc #deco @eau_deco,
     	fruits confits: any #deco @fruit_confit_deco
     }
-	    
     ustensils: {
     	grand bol @gbol,
     	petit bol @pbol,
     	bol avec eau tiède @eau,
     	cuillère ou fourchette @cuil,
+    	cuillere en bois @cuillere_en_bois,
     	mains @mains,
+    	doigts,
     	plaque,
     	four,
     	fouet,
     	assiette,
-    	zoneAmasage
+    	zoneAmasage,
+    	torchon
     }
 		    
    instructions: {
    		verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-      	verser @pre_farine, @bol -> melange;
+      	verser @pre_farine, @pbol -> melange;
       	trou_centre melange;
-      	verser @lait_avec_levure, melange -> melange;
+      	verser lait_avec_levure, melange -> melange;
       	mix @cuil, melange;
       	mix @mains, melange -> boule;
       	faire_croix boule;
       	submerger boule, @eau "qui tombe au fond puis au bout de 10 minutes monte à la surface et aura doublée de taille";
-      	reserve boule, bol;
+      	reserve boule, @pbol;
       	tamiser @pate_farine -> farine_tamisée;
       	verser farine_tamisée, @gbol -> farine_dans_bol;
       	reserve 4cc, farine_tamisée "pour engorger la pate" -> reste_farine;
@@ -86,22 +89,22 @@ recipe {
       	laver_secher citron;
       	rayer citron -> zeste_citron;
       	reserve zeste_orange, zeste_citron, assiette -> zestes;
-      	verser sucre, oeufs, gbol -> oeufs_sucre;
+      	verser sucre, oeufs, @gbol -> oeufs_sucre;
       	mix oeufs_sucre;
       	verser zestes, @essence_vanille, @rhom, @sel, oeufs_sucre -> mix_oeuf_sucre_zestes;
       	mix mix_oeuf_sucre_zestes;
-      	verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
-      	trou_centre @farine_dans_bol;
-      	verser @lait_avec_levure, mix_oeuf_sucre_zestes, @farine_dans_bol -> melange;
-      	mix cuillere_en_bois, melange;
-      	ajouter @beurre, @essence_orange, boule, melange -> début_pate;
-      	mix cuillere_en_bois, début_pate "pendant 5 minutes";
+      	verser @pate_levure, @pate_lait, @pbol -> lait_avec_levure;
+      	trou_centre farine_dans_bol;
+      	verser lait_avec_levure, mix_oeuf_sucre_zestes, farine_dans_bol -> melange;
+      	mix cuillere en bois, melange;
+      	ajouter @pate_beurre, @essence_orange, boule, melange -> début_pate;
+      	mix @cuillere_en_bois, début_pate "pendant 5 minutes";
    		preparer zoneAmasage;
    		verser reste_farine, zoneAmasage;
    		sortir début_pate, @gbol;
-   		amasser début_pate, main "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)";
+   		amasser début_pate, mains "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)";
    		laiser_reposer début_pate, 10min "après 15min d'amassage";
-   		amasser début_pate, main "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)"->pate;
+   		amasser début_pate, mains "au fur et à mesure la pate se manipulera plus rapidement, restant élastique et homogène (pas plus de 45 minutes)"->pate;
    		verser reste_farine, @gbol;
    		verser pate, @gbol;
    		couvrir pate, torchon "pendant 3h minimum la pate aura doublé ou triplé de volume";
@@ -110,13 +113,13 @@ recipe {
    		ajouter fève, roscon_cru;
    		poser roscon_cru, plaque;
    		couvrir roscon_cru, torchon "pendant 2h minimum la pate aura doublé ou triplé de volume";
-   		battre_en_omellette oeuf;
+   		battre_en_omellette oeufs;
    		verser lait, oeufs "pour éviter que l'oeuf ne brule et qu'il soit super joli" -> mélange_lait_oeuf;
    		peindre roscon_cru, mélange_lait_oeuf;
    		humidifier sucre, @pbol->sucre_granulé;
    		mix doigts, sucre_granulé;
    		verser sucre_granulé, roscon_cru;
-   		poser fruits_sec, roscon_cru;
+   		poser fruits confits, roscon_cru;
    		grease four, 200°C;
    		grill four, roscon_cru, 20min, 180°C -> roscon_cuit;
    		sortir roscon_cuit, four;
