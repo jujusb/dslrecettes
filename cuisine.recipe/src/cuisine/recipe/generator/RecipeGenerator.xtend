@@ -94,12 +94,13 @@ Instructions:
 	''' 
 
    def dispatch compile(Instruction inst) '''
-	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
+	«inst.technique.replaceAll("_","\\\\_")» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
 	''' //TODO remove les guillemets pour comments
 
 	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»«getIngredientOrUstensilFromATag(param.atag).compile» «ELSEIF param.htag!=null»[«FOR s : getIngredientsFromHTag(param.htag)»«s.compile» «ENDFOR»] «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
 
-	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
+	def dispatch compile(CustomString str) '''«FOR s : str.name»«s.replaceAll("_","\\\\_")» «ENDFOR»'''
+	
 	
 	def dispatch compile(Model model) '''«IF model.recipes.length!==0»\documentclass{article}
 \usepackage[utf8]{inputenc}
