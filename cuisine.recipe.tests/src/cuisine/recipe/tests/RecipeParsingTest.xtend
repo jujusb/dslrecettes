@@ -28,7 +28,7 @@ class RecipeParsingTest {
 	
 	@Test
 	def void testRecipe() {
-		recipes = parseHelper.parse('''define grill [ustensil] ingredient''')
+		recipes = parseHelper.parse('''define grill [utensil] ingredient''')
 		Assertions.assertNotNull(recipes);
 		recipes.assertNoIssues();
 	}
@@ -41,24 +41,24 @@ class RecipeParsingTest {
 	
 	def static Stream<String> goodLanguageSequences() {
 		return Stream.of(
-			'''define grill [ustensil] ingredient''',
-			'''define grease [ustensil]''',
+			'''define grill [utensil] ingredient''',
+			'''define grease [utensil]''',
 			'''define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}''',
 			'''define reserve ingredient''',
-			'''define mix [ustensil] ingredient [preparation]''',
-			'''define pour ingredient [ustensil] [preparation]''',
-			'''define grill [ustensil] ingredient
-				define grease [ustensil]''',
-			'''define grill [ustensil] ingredient
-			define grease [ustensil]
+			'''define mix [utensil] ingredient [preparation]''',
+			'''define pour ingredient [utensil] [preparation]''',
+			'''define grill [utensil] ingredient
+				define grease [utensil]''',
+			'''define grill [utensil] ingredient
+			define grease [utensil]
 			define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
 			define reserve ingredient
-			define heat ustensil [temperature]
-			define mix [ustensil] ingredient [preparation]
-			define pour ingredient [ustensil] [preparation]
+			define heat utensil [temperature]
+			define mix [utensil] ingredient [preparation]
+			define pour ingredient [utensil] [preparation]
 			define distribute ingredient preparation
-			define cook ingredient [ustensil]
-			define put_in ingredient [ustensil]
+			define cook ingredient [utensil]
+			define put_in ingredient [utensil]
 			
 			recipe {
 				name : Gaufres Trotro (lardons Cheddar et petits oignons)
@@ -85,7 +85,7 @@ class RecipeParsingTest {
 			        Sirop d'érable : any #aled
 				}
 			        
-			    ustensils : {
+			    utensils : {
 			        Poele,
 			        Gauffrier,
 			        fouet,
@@ -112,28 +112,28 @@ class RecipeParsingTest {
 			}
 			''',
 			'''
-			define grill [ustensil] ingredient
-			define grease [ustensil]
-			define reserve [quantity] ingredient [ustensil]
-			define mix [ustensil] ingredient [preparation]
-			define verser ingredient [ustensil] [preparation]
+			define grill [utensil] ingredient
+			define grease [utensil]
+			define reserve [quantity] ingredient [utensil]
+			define mix [utensil] ingredient [preparation]
+			define verser ingredient [utensil] [preparation]
 			define trou_centre preparation
 			define faire_croix preparation
-			define submerger preparation ustensil
+			define submerger preparation utensil
 			define laver_secher ingredient
 			define rayer ingredient
 			define ajouter ingredient preparation
-			define amasser preparation [ustensil]
-			define preparer ustensil
-			define sortir preparation ustensil
+			define amasser preparation [utensil]
+			define preparer utensil
+			define sortir preparation utensil
 			define laiser_reposer preparation time
-			define couvrir preparation ustensil
+			define couvrir preparation utensil
 			define donner_forme_boule preparation
 			define mettre_les_doigts_au_centre_agrandir_trou preparation
-			define poser preparation ustensil
+			define poser preparation utensil
 			define battre_en_omellette ingredient
 			define peindre preparation  preparation
-			define humidifier ingredient [ustensil]
+			define humidifier ingredient [utensil]
 			define poser ingredient preparation
 			define laisser_refroidir preparation
 			
@@ -169,7 +169,7 @@ class RecipeParsingTest {
 			    	eau: 2 cc #deco @eau_deco,
 			    	fruits confits: any #deco @fruit_confit_deco
 			    }
-			    ustensils: {
+			    utensils: {
 			    	grand bol @gbol,
 			    	petit bol @pbol,
 			    	bol avec eau tiède @eau,

@@ -5,16 +5,16 @@ package cuisine.recipe.generator
 
 import cuisine.recipe.recipe.CustomString
 import cuisine.recipe.recipe.Ingredient
-import cuisine.recipe.recipe.Ingredients
+import cuisine.recipe.recipe.IngredientList
 import cuisine.recipe.recipe.Instruction
 import cuisine.recipe.recipe.InstructionParameter
-import cuisine.recipe.recipe.Instructions
+import cuisine.recipe.recipe.InstructionList
 import cuisine.recipe.recipe.Model
-import cuisine.recipe.recipe.Quantificateurs
-import cuisine.recipe.recipe.Quantite
+import cuisine.recipe.recipe.Quantifier
+import cuisine.recipe.recipe.Quantity
 import cuisine.recipe.recipe.Recipe
-import cuisine.recipe.recipe.Ustensil
-import cuisine.recipe.recipe.Ustensils
+import cuisine.recipe.recipe.Utensil
+import cuisine.recipe.recipe.UtensilList
 import java.util.ArrayList
 import java.util.List
 import org.eclipse.emf.ecore.resource.Resource
@@ -51,8 +51,8 @@ Ingrédients:
 «IF recipe.ingredients!==null»«recipe.ingredients.compile»«ENDIF»
 
 
-Ustensils:
-«IF recipe.ustensils!==null»«recipe.ustensils.compile»«ENDIF»
+Utensils:
+«IF recipe.utensils!==null»«recipe.utensils.compile»«ENDIF»
 
 
 Instructions:
@@ -61,17 +61,17 @@ Instructions:
 
 '''
 
-   def dispatch compile(Ustensils usts) '''
+   def dispatch compile(UtensilList uts) '''
 	\begin{itemize}
-	«FOR ing : usts.ust»
+	«FOR ing : uts.uten»
 		\item «ing.compile»
 	«ENDFOR»
 	\end{itemize}
 	'''
 
-   def dispatch compile(Ustensil ust) '''«ust.name.compile»'''
+   def dispatch compile(Utensil ust) '''«ust.name.compile»'''
 
-   def dispatch compile(Ingredients ingrs) '''
+   def dispatch compile(IngredientList ingrs) '''
 	\begin{itemize}
 	«FOR ing : ingrs.ingr»
 		\item «ing.compile»
@@ -79,13 +79,13 @@ Instructions:
 	\end{itemize}
 	'''
 	
-	def dispatch compile(Ingredient ing) '''«IF ing.qte!==null»«ing.qte.compile»«ENDIF»«IF ing.name!==null»«ing.name.compile»«ENDIF»'''
+	def dispatch compile(Ingredient ing) '''«IF ing.qty!==null»«ing.qty.compile»«ENDIF»«IF ing.name!==null»«ing.name.compile»«ENDIF»'''
 
-	def dispatch compile(Quantite qte) '''«IF qte.qt==0.0»quelques «ELSEIF qte.quantificateur!==null»«qte.qt» «qte.quantificateur.compile» de «ELSE»«qte.qt» «ENDIF»''' 
+	def dispatch compile(Quantity qty) '''«IF qty.qt==0.0»quelques «ELSEIF qty.quantifier!==null»«qty.qt» «qty.quantifier.compile» de «ELSE»«qty.qt» «ENDIF»''' 
 
-	def dispatch compile(Quantificateurs qt) '''«IF qt.mesure.equals("càc")|| qt.mesure.equals("cc")»cuillère à café«ELSEIF qt.mesure.equals("càs")|| qt.mesure.equals("cs")»cuillère à soupe«ELSEIF qt.mesure!==null»«qt.mesure»«ENDIF»'''
+	def dispatch compile(Quantifier qt) '''«IF qt.mesure.equals("càc")|| qt.mesure.equals("cc")»cuillère à café«ELSEIF qt.mesure.equals("càs")|| qt.mesure.equals("cs")»cuillère à soupe«ELSEIF qt.mesure!==null»«qt.mesure»«ENDIF»'''
 
-   def dispatch compile(Instructions insts) '''
+   def dispatch compile(InstructionList insts) '''
 	\begin{enumerate}
 	«FOR inst : insts.inst»
 		\item «inst.compile»
@@ -97,7 +97,7 @@ Instructions:
 	«inst.technique» «FOR parameter : inst.parameters»«parameter.compile»«ENDFOR»«IF inst.comment!==null»«inst.comment»«ENDIF»
 	''' //TODO remove les guillemets pour comments
 
-	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»«getIngredientOrUstensilFromATag(param.atag).compile» «ELSEIF param.htag!=null»[«FOR s : getIngredientsFromHTag(param.htag)»«s.compile» «ENDFOR»] «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
+	def dispatch compile(InstructionParameter param) '''«IF param.parameter!==null»«param.parameter.compile» «ELSEIF param.atag!=null»«getIngredientOrUtensilFromATag(param.atag).compile» «ELSEIF param.htag!=null»[«FOR s : getIngredientsFromHTag(param.htag)»«s.compile» «ENDFOR»] «ELSEIF param.time!==null»«param.qte» «param.time» «ELSEIF param.temp!==null»«param.qte» «param.temp» «ELSEIF param.qte!==0 && param.qt!=null»«param.qte» «param.qt.compile» «ENDIF»'''
 
 	def dispatch compile(CustomString str) '''«FOR s : str.name»«s» «ENDFOR»'''
 	
@@ -134,7 +134,7 @@ Instructions:
 		currentRecipe=r
 	}
 	
-	def CustomString getIngredientOrUstensilFromATag(String atag) {
+	def CustomString getIngredientOrUtensilFromATag(String atag) {
 		for(Ingredient i : currentRecipe.ingredients.ingr) {
 			if(i.tag!==null) {
 				if(i.tag.equals(atag)) {
@@ -142,7 +142,7 @@ Instructions:
 				}
 			}
 		}
-		for(Ustensil u : currentRecipe.ustensils.ust) {
+		for(Utensil u : currentRecipe.utensils.uten) {
 			if(u.tag!==null) {
 				if(u.tag.equals(atag)) {
 					return u.name;
