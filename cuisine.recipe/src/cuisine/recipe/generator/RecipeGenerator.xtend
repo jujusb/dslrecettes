@@ -62,21 +62,27 @@ Instructions:
 '''
 
    def dispatch compile(UtensilList uts) '''
+	\begin{multicols}{3}
 	\begin{itemize}
+	\setlength\itemsep{-\itemsep}
 	«FOR ing : uts.uten»
 		\item «ing.compile»
 	«ENDFOR»
 	\end{itemize}
+	\end{multicols}
 	'''
 
    def dispatch compile(Utensil ust) '''«ust.name.compile»'''
 
    def dispatch compile(IngredientList ingrs) '''
+	\begin{multicols}{3}
 	\begin{itemize}
+	\setlength\itemsep{-\itemsep}
 	«FOR ing : ingrs.ingr»
 		\item «ing.compile»
 	«ENDFOR»
 	\end{itemize}
+	\end{multicols}
 	'''
 	
 	def dispatch compile(Ingredient ing) '''«IF ing.qty!==null»«ing.qty.compile»«ENDIF»«IF ing.name!==null»«ing.name.compile»«ENDIF»'''
@@ -87,6 +93,7 @@ Instructions:
 
    def dispatch compile(InstructionList insts) '''
 	\begin{enumerate}
+	\setlength\itemsep{1pt}
 	«FOR inst : insts.inst»
 		\item «inst.compile»
 	«ENDFOR»
@@ -109,6 +116,7 @@ Instructions:
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{multicol}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 
 \geometry{
