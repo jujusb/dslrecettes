@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
@@ -18,6 +20,8 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
 import cuisine.recipe.recipe.*;
+import cuisine.recipe.ui.outline.RecipeOutlineTreeProvider;
+
 /**
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#content-assist
  * on how to customize the content assistant.
@@ -180,48 +184,182 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         // Getting all the instances of Technique in the model
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
 		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
-		Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
-		int actualsize = ((Instruction)instruction).getParameters().size();
-		System.out.print(actualsize);
-		ParamTechnique param = t.getParam().get(0) ;
-		String value;
+		if(t!=null) {
+			Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
+			Instruction inst = (Instruction) instruction;
+			List<String> instructionParam = getListOFInstructionParameters(inst.getParameters(), recipe, t);
+			List<String> value=new ArrayList<>();
+			ParamTechnique param=null;
+			int size = instructionParam.size();
+			int fin=size;
+			for(int i = size-1; i<=fin; i++) {
+				if(i>-1 && i<t.getParam().size()) {
+					param = t.getParam().get(i);
+					if(param.getObjectFac()!=null) {
+						fin+=1;
+					}
+					addParamToValueList(value, param);
+				}
+			}
+			if(value.contains("ingredient")) {
+				for(Ingredient ing : recipe.getIngredients().getIngr()) {
+					acceptor.accept(createCompletionProposal(customStringToString(ing.getName()), context));
+					if(ing.getTag()!=null) {
+						acceptor.accept(createCompletionProposal("@"+ing.getTag(), context));
+					}
+					if(ing.getGroup()!=null) {
+						acceptor.accept(createCompletionProposal("#"+ing.getGroup(), context));
+					}
+				}
+				for(String preparation : getPreparationListFromRecipe(recipe)) {
+					acceptor.accept(createCompletionProposal(preparation, context));
+				}
+			}
+			if(value.contains("ustensil") || value.contains("tool")) {
+				for(Ustensil u : recipe.getUstensils().getUst()) {
+					acceptor.accept(createCompletionProposal(customStringToString(u.getName()), context));
+					if(u.getTag()!=null) {
+						acceptor.accept(createCompletionProposal("@"+u.getTag(), context));
+					}
+				}
+			}
+			if(value.contains("preparation")) {
+				for(String preparation : getPreparationListFromRecipe(recipe)) {
+					acceptor.accept(createCompletionProposal(preparation, context));
+				}
+			}
+			if(value.contains("choices")){
+				List<String> completions = getListOfChoices(param.getChoices().getChoix());
+				for(String choice :completions) {
+					acceptor.accept(createCompletionProposal(choice, context));
+				}
+			}
+		}
+	}
+
+	private void addParamToValueList(List<String> value, ParamTechnique param) {
 		if(param.getObject()!=null) {
-			value = param.getObject();
+			value.add(param.getObject());
 		} else if(param.getObjectFac()!=null) {
-			value = param.getObjectFac();
+			value.add(param.getObjectFac());
 		} else {
-			value = "choices";
+			value.add("choices");
 		}
-		if(value.equals("ingredient")) {
-			for(Ingredient i : recipe.getIngredients().getIngr()) {
-				acceptor.accept(createCompletionProposal(customStringToString(i.getName()), context));
-				if(i.getTag()!=null) {
-					acceptor.accept(createCompletionProposal("@"+i.getTag(), context));
+	}
+	
+	public List<String> getListOFInstructionParameters(List<InstructionParameter> list, Recipe r, Technique t) {
+		List<String> lParameters = new ArrayList<>();
+		int size =0;
+		for(InstructionParameter param : list) {
+			String toAdd = "";
+			if(param.getHtag()!=null) {
+				if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("ingredient")) {
+					toAdd="ingredient";	
 				}
-				if(i.getGroup()!=null) {
-					acceptor.accept(createCompletionProposal("#"+i.getGroup(), context));
+			} else if(param.getAtag()!=null) {
+				EObject l = getIngredientOrUstensilFromATag(param.getAtag(), r);
+				if(l instanceof Ingredient) {
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("ingredient")) {
+						toAdd = "ingredient";	
+					}
+				} else if(l instanceof Ustensil) {
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("ustensil")) {
+						toAdd = "ustensil";	
+					}
 				}
-			}
-			for(String preparation : getPreparationListFromRecipe(recipe)) {
-				acceptor.accept(createCompletionProposal(preparation, context));
-			}
-		} else if(value.equals("ustensil") || value.equals("tool")) {
-			for(Ustensil u : recipe.getUstensils().getUst()) {
-				acceptor.accept(createCompletionProposal(customStringToString(u.getName()), context));
-				if(u.getTag()!=null) {
-					acceptor.accept(createCompletionProposal("@"+u.getTag(), context));
+			} else if(param.getParameter()!=null) {
+				Object l = getIngredientOrUstensilOrPreparationFromName(param.getParameter(), r);
+				if(l instanceof Ingredient) {
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("ingredient")) {
+						toAdd = "ingredient";	
+					}
+				} else if(l instanceof Ustensil) {
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("ustensil")) {
+						toAdd = "ustensil";
+					}
+				} else if(l instanceof CustomString) {
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals("preparation")) {
+						toAdd = "preparation";	
+					}
+				} else {
+					toAdd = "choices";
 				}
-			}
-		}else if(value.equals("preparation")) {
-			for(String preparation : getPreparationListFromRecipe(recipe)) {
-				acceptor.accept(createCompletionProposal(preparation, context));
-			}
-		} else if(value.equals("choices")){
-			List<String> completions = getListOfChoices(param.getChoices().getChoix());
-			for(String choice :completions) {
-				acceptor.accept(createCompletionProposal(choice, context));
+			} else if(param.getQt()!=null) {
+				toAdd = "quantity";
+			} else if(param.getTemp()!=null) {
+				toAdd = "temperature";
+			}else if(param.getTime()!=null) {
+				toAdd = "time";
+			} 
+			/*//check if we have an facultative object that not equal to current parameter 
+			boolean fac=true;
+			while(fac && size<t.getParam().size()) {
+				String facult = t.getParam().get(size).getObjectFac();
+				if(facult!=null && !toAdd.equals(facult)) {
+					lParameters.add(facult);
+					size++;
+				} else {
+					fac=false;
+				}
+			}*/
+			lParameters.add(toAdd);
+			size++;
+		}
+		return lParameters;
+	}
+	
+	public static EObject getIngredientOrUstensilFromATag(String atag, EObject r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getTag()!=null) {
+				if(i.getTag().equals(atag)) {
+					return i;
+				}
 			}
 		}
+		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+			if(u.getTag()!=null) {
+				if(u.getTag().equals(atag)) {
+					return u;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static List<Ingredient> getIngredientsFromHTag(String htag, EObject r) {
+		List<Ingredient> ingredients=new ArrayList<>();
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getGroup()!=null) {
+				if(i.getGroup().equals(htag)) {
+					ingredients.add(i);
+				}
+			}
+		}
+		return ingredients;
+	}
+	
+	public Object getIngredientOrUstensilOrPreparationFromName(CustomString s, EObject r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getName()!=null) {
+				if(customStringToString(i.getName()).equals(customStringToString(s))) {
+					return i;
+				}
+			}
+		}
+		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+			if(u.getName()!=null) {
+				if(customStringToString(u.getName()).equals(customStringToString(s))) {
+					return u;
+				}
+			}
+		}
+		
+		for(String prep : getPreparationListFromRecipe((Recipe)r)) {// EcoreUtil2.getAllContentsOfType( r, Preparation.class);
+			if(prep.equals(customStringToString(s))) {
+				return prep;
+			}
+		}
+		return null;
 	}
 	
 	public List<String> getListOfChoices(List choices) {
@@ -236,7 +374,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 		}
 		return c;
 	}
-		
+	
 	public List<String> getPreparationListFromRecipe(Recipe r) {
 		List<String> preparations = new ArrayList<>();
 		for(Instruction i : r.getInstructions().getInst()) {
