@@ -37,7 +37,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 	}
 	
 	public Object _text(Choices choices) {
-		if(choices.getChoix()!=null) {
+		if(choices.getChoice()!=null) {
 			return "[]";
 		} else {
 			return "Choices";
@@ -48,7 +48,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		return _text(recipe.getName());
 	}
 
-   public Object _text(Ingredients ingrs) {
+   public Object _text(IngredientList ingrs) {
 	   return "ingredients";  
    }
 	
@@ -56,7 +56,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		return _text(ing.getName());
 	}
 	
-	public Object _text(Quantite qte) {
+	public Object _text(Quantity qte) {
 		if(qte.getQt()==0.0) {
 			return "quelques";
 		} else {
@@ -64,7 +64,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		}
 	}
 	
-	public Object _text(Quantificateurs qt) {
+	public Object _text(Quantifier qt) {
 		if(qt.getMesure().equals("càc")||qt.getMesure().equals("cc")) {
 			return "cuillère à café";
 		} else if(qt.getMesure().equals("càs")||qt.getMesure().equals("cs")) {
@@ -74,16 +74,16 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		}
 	}
 
-   public Object _text(Ustensils usts) {
+   public Object _text(UtensilList usts) {
 	return "Ustensils";
 	   
    }
 
-   public Object _text(Ustensil ust) {
+   public Object _text(Utensil ust) {
 	return _text(ust.getName());
    }
    
-   public Object _text(Instructions insts) {
+   public Object _text(InstructionList insts) {
 	return "Instructions";
    }
 
@@ -168,7 +168,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 				}
 			}
 		}
-		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
 			if(u.getTag()!=null) {
 				if(u.getTag().equals(atag)) {
 					return u;
@@ -198,7 +198,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 				}
 			}
 		}
-		for(Ustensil u : ((Recipe)r).getUstensils().getUst()) {
+		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
 			if(u.getName()!=null) {
 				if(_text(u.getName()).equals(_text(s))) {
 					return u;
