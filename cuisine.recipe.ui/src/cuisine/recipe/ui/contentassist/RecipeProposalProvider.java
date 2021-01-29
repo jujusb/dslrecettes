@@ -4,13 +4,8 @@
 package cuisine.recipe.ui.contentassist;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
@@ -20,7 +15,6 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
 import cuisine.recipe.recipe.*;
-import cuisine.recipe.ui.outline.RecipeOutlineTreeProvider;
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#content-assist
@@ -228,15 +222,46 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 					acceptor.accept(createCompletionProposal(preparation, context));
 				}
 			}
-			if(value.contains("choices")){
-				List<String> completions = getListOfChoices(param.getChoices().getChoix());
+			if(value.get(1).equals("choices")){
+				List<List<String>> combinaisons = new ArrayList<>();
+				int index=0;
+				for(Choices l : param.getChoices().getChoices()) {
+					combinaisons.add(new ArrayList<>());
+					for(CustomString s : l.getChoix()) {
+						combinaisons.get(index).add(customStringToString(s));
+					}
+					index++;
+				}
+				getCombinations(new ArrayList<String>(), 0, combinaisons, context, acceptor);
+				List<String> completions = new ArrayList<>();
+				for(CustomString c :param.getChoices().getChoix()) {
+					completions.add(customStringToString(c));
+				}
 				for(String choice :completions) {
 					acceptor.accept(createCompletionProposal(choice, context));
-				}
+				} 
 			}
 		}
 	}
-
+	
+	private void getCombinations(List<String> soFar, int i, List<List<String>> lists, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+	    if (i == lists.size()) { //no more lists left:
+	        //do work on soFar
+	    	String str = "";
+			for(String s : soFar) {
+				str+=s+" ";
+			}
+			acceptor.accept(createCompletionProposal(str, context));
+	    }
+	    else { 
+	        for (String t : lists.get(i)) {
+	            soFar.add(t); //"guess" item
+	            getCombinations(soFar, i+1, lists,context, acceptor); //recurse on rest of lists
+	            soFar.remove(soFar.size()-1); //cleanup
+	        }
+	    }
+	}
+	
 	private void addParamToValueList(List<String> value, ParamTechnique param) {
 		if(param.getObject()!=null) {
 			value.add(param.getObject());
@@ -360,19 +385,6 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 			}
 		}
 		return null;
-	}
-	
-	public List<String> getListOfChoices(List choices) {
-		List<List<CustomString>> combinaisons = new ArrayList<>(); //getCombinations(choices);
-		List<String> c = new ArrayList<>();
-		for(List<CustomString> list : combinaisons) {
-			String str="";
-			for(CustomString s : list) {
-				str+=customStringToString(s)+" ";
-			}
-			c.add(str);
-		}
-		return c;
 	}
 	
 	public List<String> getPreparationListFromRecipe(Recipe r) {

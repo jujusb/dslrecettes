@@ -144,7 +144,10 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 				createNode(parent, i);
 			}
 		} else if(!(param.getParameter()==null)) {
-			createNode(parent, (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r));
+			EObject e = (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r);
+			if(e!=null) {
+				createNode(parent, e);
+			}
 		}
 	}
 

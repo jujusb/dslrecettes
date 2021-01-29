@@ -16,7 +16,11 @@ ParamTechnique:
 ;
 
 Choices: 
-	choix+=CustomString ("," choix+=CustomString)* | "{" choices+=Choices "}" ("," "{" choices+=Choices "}")*  
+	choix+=CustomString ("," choix+=CustomString)* | "{" choices+=Choice "}" ("," "{" choices+=Choice "}")*  
+;
+
+Choice: 
+	choix+=CustomString ("," choix+=CustomString)*
 ;
 
 IngrUslTech:
