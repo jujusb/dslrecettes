@@ -6,7 +6,9 @@ package cuisine.recipe.ui.contentassist;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.eclipse.emf.ecore.EObject;
@@ -209,49 +211,67 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
 		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
 		if(t!=null) {
-			Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
-			Instruction inst = (Instruction) instruction;
-			List<String> instructionParam = getListOFInstructionParameters(inst.getParameters(), recipe, t);
-			List<String> value=new ArrayList<>();
-			ParamTechnique param=null;
-			int size = instructionParam.size();
-			int fin=size;
 			boolean choices=false;
 			boolean intProposal = false;
-			for(int i = size-1; i<=fin; i++) {
-				if(i>-1 && i<t.getParam().size()) {
-					param = t.getParam().get(i);
-					if(param.getObjectFac()!=null) {
-						fin+=1;
-					}
-					addParamToValueList(value, param);
-				}
-			}
+			List<String> value=new ArrayList<>();
+			Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
+			Instruction inst = (Instruction) instruction;
+			Set<String> delimiter = new HashSet<>();
+			ParamTechnique param = getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
 			if(value.contains(INGREDIENTS)) {
-				for(Ingredient ing : recipe.getIngredients().getIngr()) {
-					acceptor.accept(createCompletionProposal(customStringToString(ing.getName()), context));
-					if(ing.getTag()!=null) {
-						acceptor.accept(createCompletionProposal("@"+ing.getTag(), context));
-					}
-					if(ing.getGroup()!=null) {
-						acceptor.accept(createCompletionProposal("#"+ing.getGroup(), context));
+				Set<String> delimiterIngredient=new HashSet<>();
+				if(value.get(value.size()-1).equals(INGREDIENTS)) {
+					for(String v : delimiter) {
+						delimiterIngredient.add(v);
 					}
 				}
-				for(String preparation : getPreparationListFromRecipe(recipe)) {
-					acceptor.accept(createCompletionProposal(preparation, context));
+				delimiterIngredient.add(",");
+				for(Ingredient ing : recipe.getIngredients().getIngr()) {
+					for(String d : delimiterIngredient) {
+						acceptor.accept(createCompletionProposal(customStringToString(ing.getName())+d, context));
+						if(ing.getTag()!=null) {
+							acceptor.accept(createCompletionProposal("@"+ing.getTag()+d, context));
+						}
+						if(ing.getGroup()!=null) {
+							acceptor.accept(createCompletionProposal("#"+ing.getGroup()+d, context));
+						}
+					}
+					for(String preparation : getPreparationListFromRecipe(recipe)) {
+						for(String d : delimiterIngredient) {
+							acceptor.accept(createCompletionProposal(preparation+d, context));
+						}
+					}
 				}
 			}
 			if(value.contains(USTENSIL) || value.contains(TOOL)) {
+				Set<String> delimiterUstensil=new HashSet<>();
+				if(value.get(value.size()-1).equals(USTENSIL)||value.get(value.size()-1).equals(TOOL)) {
+					for(String v : delimiter) {
+						delimiterUstensil.add(v);
+					}
+				}
+				delimiterUstensil.add(",");
 				for(Ustensil u : recipe.getUstensils().getUst()) {
-					acceptor.accept(createCompletionProposal(customStringToString(u.getName()), context));
-					if(u.getTag()!=null) {
-						acceptor.accept(createCompletionProposal("@"+u.getTag(), context));
+					for(String d : delimiterUstensil) {
+						acceptor.accept(createCompletionProposal(customStringToString(u.getName())+d, context));
+						if(u.getTag()!=null) {
+							acceptor.accept(createCompletionProposal("@"+u.getTag() + d, context));
+						}
 					}
 				}
 			}
 			if(value.contains(PREPARATION)) {
+				Set<String> delimiterPreparation=new HashSet<>();
+				if(value.get(value.size()-1).equals(PREPARATION)) {
+					for(String v : delimiter) {
+						delimiterPreparation.add(v);
+					}
+				}
+				delimiterPreparation.add(",");
 				for(String preparation : getPreparationListFromRecipe(recipe)) {
-					acceptor.accept(createCompletionProposal(preparation, context));
+					for(String d : delimiterPreparation) {
+						acceptor.accept(createCompletionProposal(preparation+d, context));
+					}
 				}
 			}
 			if(value.size()>1 && (value.get(1).equals(QUANTITY) || value.get(1).equals(TIME) || value.get(1).equals(TEMPERATURE))) {
@@ -286,31 +306,59 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 					}
 					index++;
 				}
-				getCombinations(new ArrayList<String>(), 0, combinaisons, context, acceptor);
+				getCombinations(new ArrayList<String>(), 0, combinaisons, delimiter, context, acceptor);
 				List<String> completions = new ArrayList<>();
 				for(CustomString c :param.getChoices().getChoix()) {
 					completions.add(customStringToString(c));
 				}
 				for(String choice :completions) {
-					acceptor.accept(createCompletionProposal(choice, context));
+					for(String d : delimiter) {
+						acceptor.accept(createCompletionProposal(choice+d, context));
+					}
 				} 
 			}
 		}
 	}
+
+	private ParamTechnique getParamTechniqueCorrespondingToCurrentParameter(Technique t, List<String> value,
+			Recipe recipe, Instruction inst, Set<String> delimiter) {
+		List<String> instructionParam = getListOFInstructionParameters(inst.getParameters(), recipe, t);
+		ParamTechnique param=null;
+		int size = instructionParam.size();
+		int fin=size;
+		for(int i = size-1; i<=fin; i++) {
+			if(i>-1 && i<t.getParam().size()) {
+				param = t.getParam().get(i);
+				if(param.getObjectFac()!=null) {
+					fin+=1;
+				}
+				addParamToValueList(value, param);
+			}
+		}
+		if(fin>=t.getParam().size()-1) {
+			delimiter.add(";\n");
+			delimiter.add(" ");
+		} else {
+			delimiter.add(",");
+		}
+		return param;
+	}
 	
-	private void getCombinations(List<String> soFar, int i, List<List<String>> lists, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+	public void getCombinations(List<String> soFar, int i, List<List<String>> lists, Set<String> delimiter, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 	    if (i == lists.size()) { //no more lists left:
 	        //do work on soFar
 	    	String str = "";
 			for(String s : soFar) {
 				str+=s.trim()+" ";
 			}
-			acceptor.accept(createCompletionProposal(str, context));
+			for(String d : delimiter) {
+				acceptor.accept(createCompletionProposal(str+d, context));
+			}
 	    }
 	    else { 
 	        for (String t : lists.get(i)) {
-	            soFar.add(t); //"guess" item
-	            getCombinations(soFar, i+1, lists,context, acceptor); //recurse on rest of lists
+	            soFar.add(t); //"guess' item
+	            getCombinations(soFar, i+1, lists, delimiter, context, acceptor);
 	            soFar.remove(soFar.size()-1); //cleanup
 	        }
 	    }
@@ -501,19 +549,94 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	public void completeInstructionParameter_Qte(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeInstructionParameter_Qte(model, assignment, context, acceptor);
 	}
-	public void completeInstructionParameter_Qt(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeInstructionParameter_Qt(model, assignment, context, acceptor);
-	}
-	public void completeInstructionParameter_Time(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeInstructionParameter_Time(model, assignment, context, acceptor);
-		for(String proposal : Arrays.asList("s" ,"min",  "h", "days")) {
-			acceptor.accept(createCompletionProposal(proposal, context));
+	public void completeInstructionParameter_Qt(EObject instructionParam, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Qt(instructionParam, assignment, context, acceptor);
+		// Getting the root of the model
+        EObject rootElement = EcoreUtil2.getRootContainer(instructionParam);
+        // Getting all the instances of Technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+        Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
+		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		if(t!=null) {
+			List<String> value=new ArrayList<>();
+			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
+			Set<String> delimiter = new HashSet<>();
+			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
+			boolean quantity=false;
+			if(value.size()>1 && (value.get(1).equals(QUANTITY))) {
+				quantity=true;
+			} else {
+				if(value.get(0).equals(QUANTITY)) {
+					quantity=true;
+				}
+			}
+			if(quantity) {
+				for(String proposal : paramsQuantificateur) {
+					for(String d : delimiter) {
+						acceptor.accept(createCompletionProposal(proposal+d, context));
+					}
+				}
+			}
 		}
 	}
-	public void completeInstructionParameter_Temp(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeInstructionParameter_Temp(model, assignment, context, acceptor);
-		for(String proposal : Arrays.asList("°C" ,"F")) {
-			acceptor.accept(createCompletionProposal(proposal, context));
+	public void completeInstructionParameter_Time(EObject instructionParam, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Time(instructionParam, assignment, context, acceptor);
+		// Getting the root of the model
+        EObject rootElement = EcoreUtil2.getRootContainer(instructionParam);
+        // Getting all the instances of Technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+        Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
+		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		if(t!=null) {
+			List<String> value=new ArrayList<>();
+			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
+			Set<String> delimiter = new HashSet<>();
+			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
+			boolean time=false;
+			if(value.size()>1 && (value.get(1).equals(TIME))) {
+				time=true;
+			} else {
+				if(value.get(0).equals(TIME)) {
+					time=true;
+				}
+			}
+			if(time) {
+				for(String proposal : Arrays.asList("s" ,"min",  "h", "days")) {
+					for(String d : delimiter) {
+						acceptor.accept(createCompletionProposal(proposal+d, context));
+					}
+				}
+			}
+		}
+	}
+	public void completeInstructionParameter_Temp(EObject instructionParam, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeInstructionParameter_Temp(instructionParam, assignment, context, acceptor);
+		// Getting the root of the model
+        EObject rootElement = EcoreUtil2.getRootContainer(instructionParam);
+        // Getting all the instances of Technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
+        Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
+		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		if(t!=null) {
+			List<String> value=new ArrayList<>();
+			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
+			Set<String> delimiter = new HashSet<>();
+			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
+			boolean temperature=false;
+			if(value.size()>1 && (value.get(1).equals(TEMPERATURE))) {
+				temperature=true;
+			} else {
+				if(value.get(0).equals(TEMPERATURE)) {
+					temperature=true;
+				}
+			}
+			if(temperature) {
+				for(String proposal : Arrays.asList("°C" ,"F")) {
+					for(String d : delimiter) {
+						acceptor.accept(createCompletionProposal(proposal+d, context));
+					}
+				}
+			}
 		}
 	}
 	public void completeCustomString_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {

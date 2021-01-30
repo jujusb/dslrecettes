@@ -105,7 +105,15 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
     	   }
        }
        for(InstructionParameter param : instruction.getParameters()) {
-    	   createNode(parent, param);
+    	   if(param!=null) {
+    		   if((param.getQt()==null || param.getTemp()==null || param.getTime()==null) && (param.getAtag()!=null || param.getHtag()!=null || param.getParameter()!=null)) {
+    			   createNode(parent, param);
+    		   } else if(param.getQte()!=0) {
+        		   if(param.getQt()!=null || param.getTemp()!=null || param.getTime()!=null) {
+        			   createNode(parent, param);
+        		   }
+    		   }
+    	   }
        }
        if(instruction.getPreparation()!=null) {
     	   createNode(parent, instruction.getPreparation());
