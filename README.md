@@ -124,22 +124,22 @@ Krrrrrrrrrkrr
     See you soon, little spoon!
 
 ## EXEMPLE avec métamodèle
-    // Déclaration de techniques
-define grill [ustensil] ingredient
-define grease [ustensil]
-define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
-define reserve ingredient
-define heat ustensil [temperature]
-define mix [ustensil] ingredient [preparation]
-define pour ingredient [ustensil] [preparation]
+// Déclaration de techniques
+define grill [utensil] ingredient
+define grease [utensil]
+define cut [utensil] ingredient {{small, medium, large}, {cubes, slices, bits}}
+define reserve ingredient [quantity]
+define heat utensil [temperature]
+define mix [utensil] ingredient [utensil]
+define pour ingredient [utensil] [preparation]
 define distribute ingredient preparation
-define cook ingredient [ustensil]
-define put_in ingredient [ustensil]
+define cook ingredient [utensil]
+define put_in ingredient [utensil]
 
 recipe {
 	name : Gaufres Trotro (lardons Cheddar et petits oignons)
     
-    time : 15
+    time : 15min
     
     nb_pers : 9.5
         
@@ -161,7 +161,7 @@ recipe {
         Sirop d'érable : any #aled
 	}
         
-    ustensils : {
+    utensils : {
         Poele,
         Gauffrier,
         fouet,
@@ -171,13 +171,13 @@ recipe {
     	Four
     }
         
-    instructions: {
+    instructions:{
     	grill Poele, Lardons Fumés "Biens dorés et croustillants";
         cut Lardons Fumés, small bits -> lardons;
         reserve Graisse des lardons cuits, 1cs "A ajouter aux ingrédients liquides";
-        heat Gaufrier -> Gaufrier chaud;
-        mix Fouet, #sec, Petit bol;
-        mix #liquide, Grand bol;
+        heat Gauffrier -> Gaufrier chaud;
+        mix fouet, #sec, Petit bol;
+        mix #liquide, Grand bol ;
         pour #sec, #liquide -> pate;
         mix fouet, pate "Plus de trace de farine";
         distribute lardons, @cheddar, Petits oignons émincées, pate;

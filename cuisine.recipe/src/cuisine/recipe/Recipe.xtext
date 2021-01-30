@@ -18,11 +18,11 @@ ParamTechnique:
 ;
 
 Choices: // A list of words or groups of words that qualify the result
-	choice+=CustomString ("," choice+=CustomString)* | "{" choices+=Choice "}" ("," "{" choices+=Choice "}")*  
+	choice+=WORD ("," choice+=WORD)* | "{" choices+=Choice "}" ("," "{" choices+=Choice "}")*  
 ;
 
-Choice: 
-	choice+=CustomString ("," choice+=CustomString)*
+Choice:
+	choice+=WORD ("," choice+=WORD)*
 ;
 
 TechParameterType: // The type of an element that can be used as a parameter of a technique
