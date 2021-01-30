@@ -105,7 +105,15 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
     	   }
        }
        for(InstructionParameter param : instruction.getParameters()) {
-    	   createNode(parent, param);
+    	   if(param!=null) {
+    		   if((param.getQt()==null || param.getTemp()==null || param.getTime()==null) && (param.getAtag()!=null || param.getHtag()!=null || param.getParameter()!=null)) {
+    			   createNode(parent, param);
+    		   } else if(param.getQte()!=0) {
+        		   if(param.getQt()!=null || param.getTemp()!=null || param.getTime()!=null) {
+        			   createNode(parent, param);
+        		   }
+    		   }
+    	   }
        }
        if(instruction.getPreparation()!=null) {
     	   createNode(parent, instruction.getPreparation());
@@ -144,7 +152,10 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 				createNode(parent, i);
 			}
 		} else if(!(param.getParameter()==null)) {
-			createNode(parent, (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r));
+			EObject e = (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r);
+			if(e!=null) {
+				createNode(parent, e);
+			}
 		}
 	}
 
@@ -206,6 +217,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 			}
 		}
 		//List<EObject> preparations = EcoreUtil2.getAllReferencedObjects( r, RecipePackage.Literals.INSTRUCTION__PREPARATION);
+		
 		for(CustomString prep : preparations) {
 			if(_text(prep).equals(_text(s))) {
 				return prep;

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+	<template
+		name="Technique"
+		description="Template for a Technique"
+		id="technique"
+		context="cuisine.recipe.recipe.Technique"
+		enabled="true"
+	>define ${name} ${params}
+	</template>
+	<template
+		name="Recipe"
+		description="Template for a Recipe"
+		id="recipe"
+		context="cuisine.recipe.recipe.Recipe"
+		enabled="true"
+	>define nametechniquerecipe {\n
+		name: ${name}
+		time: ${time}\n
+		nb_pers: ${nb}\n
+		ingredients:{\n
+		}\n
+		ustensils:{\n
+		}\n
+		instructions: {\n
+		}\n
+		}\n
+	</template>
+	<template
+		name="Ingredients"
+		description="Template for a list of ingredients"
+		id="ingredients"
+		context="cuisine.recipe.recipe.Recipe"
+		enabled="true"
+	>ingredients:{\n
+		}
+	</template>
+		<template
+		name="Ustensils"
+		description="Template for a list of ustensils"
+		id="ustensils"
+		context="cuisine.recipe.recipe.Recipe"
+		enabled="true"
+	>ustensils:{\n
+		}
+	</template>
+		<template
+		name="Ingredients"
+		description="Template for a list of ingredients"
+		id="ingredients"
+		context="cuisine.recipe.recipe.Recipe"
+		enabled="true"
+	>ingredients:{\n
+		}
+	</template>
+		<template
+		name="Instructions" 
+		description="Template for a list of instructions"
+		id="instructions"
+		context="cuisine.recipe.recipe.Recipe"
+		enabled="true"
+	>instructions:{\n
+		}
+	</template>
+</templates>

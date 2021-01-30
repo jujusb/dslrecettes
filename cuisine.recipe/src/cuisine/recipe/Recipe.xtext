@@ -18,7 +18,11 @@ ParamTechnique:
 ;
 
 Choices: // A list of words or groups of words that qualify the result
-	choice+=CustomString ("," choice+=CustomString)* | "{" choices+=Choices "}" ("," "{" choices+=Choices "}")*  
+	choice+=CustomString ("," choice+=CustomString)* | "{" choices+=Choice "}" ("," "{" choices+=Choice "}")*  
+;
+
+Choice: 
+	choix+=CustomString ("," choix+=CustomString)*
 ;
 
 TechParameterType: // The type of an element that can be used as a parameter of a technique
@@ -28,7 +32,7 @@ TechParameterType: // The type of an element that can be used as a parameter of 
 Recipe:
 	"recipe" "{"
 		"name" ":" name=CustomString
-		"time" ":" time=DOUBLE
+		"time" ":" (time+=DOUBLE timeUnit+=Timing)+
 		"nb_pers" ":" nb=DOUBLE
 		ingredients=IngredientList
 		utensils=UtensilList
