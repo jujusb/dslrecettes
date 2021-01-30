@@ -64,7 +64,10 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
    }
 	
 	public Object _text(Ingredient ing) {
-		return _text(ing.getName());
+		if(ing.getName()!=null) {
+			return _text(ing.getName());
+		}
+		return ing;
 	}
 	
 	public Object _text(Quantity qte) {

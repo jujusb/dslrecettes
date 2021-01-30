@@ -3,6 +3,18 @@
  */
 package cuisine.recipe.validation;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.validation.Check;
+import cuisine.recipe.recipe.*;
 
 /**
  * This class contains custom validation rules. 
@@ -11,15 +23,331 @@ package cuisine.recipe.validation;
  */
 public class RecipeValidator extends AbstractRecipeValidator {
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					RecipePackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	final String INGREDIENTS = "ingredient";
+	final String UTENSIL = "utensil";
+	final String PREPARATION = "preparation";
+	final String QUANTITY = "quantity";
+	final String TEMPERATURE = "temperature";
+	final String TIME = "time";
+	final String TOOL = "tool";
+	final String CHOICES = "choices";
+	final String PARAMFAC = "objectFac";
+	final String PARAMOBL = "object";
 	
+	public static final String INGR_TAG_DUP = "ingr-tag-dup";
+	public static final String INGR_TAG_DUP_MSG = "This tag is already defined";
+	
+	public static final String UST_DUP = "ust-dup";
+	public static final String UST_DUP_MSG = "This name is already defined";
+	public static final String UST_TAG_DUP = "ust-tag-dup";
+	public static final String UST_TAG_DUP_MSG = "This tag is already defined";
+	
+	
+	public static final String INVALID_TECH_NAME = "invalidTechName";
+	public static final String INVALID_TECH_NAME_MSG = "technique name not define";
+	
+	
+	public static final String INVALID_INGR_UT_ATAG = "invalidIngrUstAtag";
+	public static final String INVALID_INGR_UT_ATAG_MSG = "this @tag ingredient or utensil is not define";
+	
+	public static final String INVALID_INGR_HTAG = "invalidIngrHtag";
+	public static final String INVALID_INGR_HTAG_MSG = "this #tag group of ingredient is not define";
+	
+	public static final String INVALID_UST_INGR_PREP_NAME = "invalidUstAtag";
+	public static final String INVALID_UST_INGR_PREP_NAME_MSG = "this name is not define";
+
+	public static final String INVALID_INGR_ATAG_PLACE_NAME = "invalidIngrPlace";
+	public static final String INVALID_INGR_ATAG_PLACE_NAME_MSG = "this ingredient @tag cannot be placed here. You can only place : ";	
+	public static final String INVALID_UT_ATAG_PLACE_NAME = "invalidUtPlace";
+	public static final String INVALID_UT_ATAG_PLACE_NAME_MSG = "this utensil @tag cannot be placed here. You can only place : ";	
+	
+	public static final String INVALID_INGR_HTAG_PLACE_NAME = "invalidIngrPlace";
+	public static final String INVALID_INGR_HTAG_PLACE_NAME_MSG = "this ingredient group cannot be placed here. You can only place : ";
+	
+	public static final String INVALID_UT_PLACE_NAME = "invalidUtPlace";
+	public static final String INVALID_UT_PLACE_NAME_MSG = "this utensil cannot be placed here. You can only place : ";
+	public static final String INVALID_INGR_PLACE_NAME = "invalidUtPlace";
+	public static final String INVALID_INGR_PLACE_NAME_MSG = "this ingredient name cannot be placed here. You can only place : ";	
+	public static final String INVALID_PREP_PLACE_NAME = "invalidPrepPlace";
+	public static final String INVALID_PREP_PLACE_NAME_MSG = "this preparation name cannot be placed here. You can only place : ";	
+	public static final String INVALID_QT_PLACE_NAME = "invalidQtPlace";
+	public static final String INVALID_QT_PLACE_NAME_MSG = "this quantity cannot be placed here. You can only place : ";
+	public static final String INVALID_TEMP_PLACE_NAME = "invalidTempPlace";
+	public static final String INVALID_TEMP_PLACE_NAME_MSG = "this temperature cannot be placed here. You can only place : ";	
+	public static final String INVALID_TIME_PLACE_NAME = "invalidTImePlace";
+	public static final String INVALID_TIME_PLACE_NAME_MSG = "this time cannot be placed here. You can only place : ";	
+	
+	@Check
+	public void checkIngredientTagAlreadyPresent(Ingredient ingredient) {
+		// Getting the recipe
+        Recipe recipe = EcoreUtil2.getContainerOfType(ingredient, Recipe.class);
+        // Getting the list of ingredients in the model
+        List<Ingredient> candidates = recipe.getIngredients().getIngr();
+        if(candidates.stream()
+			.anyMatch(v -> v.getTag().equals(ingredient.getTag()) && v != ingredient)) {
+				error(INGR_TAG_DUP_MSG, RecipePackage.Literals.INGREDIENT__TAG, INGR_TAG_DUP);
+			}
+	}
+	
+
+	@Check
+	public void checkUtensilAlreadyPresent(Utensil utensil) {
+		// Getting the recipe
+        Recipe recipe = EcoreUtil2.getContainerOfType(utensil, Recipe.class);
+        // Getting the list of utensil in the model
+        List<Utensil> candidates = recipe.getUtensils().getUten();
+        if(candidates.stream()
+			.anyMatch(v -> customStringToString(v.getName()).equals(customStringToString(utensil.getName())) && v != utensil)) {
+				error(UST_DUP_MSG, RecipePackage.Literals.UTENSIL__NAME, UST_DUP);
+			}
+	}
+	
+	@Check
+	public void checkUtensilTagAlreadyPresent(Utensil utensil) {
+		// Getting the recipe
+        Recipe recipe = EcoreUtil2.getContainerOfType(utensil, Recipe.class);
+        // Getting all the instances of utensil in the model
+        List<Utensil> candidates = recipe.getUtensils().getUten();
+        if(candidates.stream()
+			.anyMatch(v -> v.getTag().equals(utensil.getTag()) && v != utensil)) {
+				error(UST_TAG_DUP_MSG, RecipePackage.Literals.UTENSIL__TAG, UST_TAG_DUP);
+			}
+	}
+	
+	@Check
+	public void checkInstructionTechniqueExist(Instruction instruction) {
+		// Getting the recipe
+        EObject recipe = EcoreUtil2.getRootContainer(instruction);
+        // Getting all the instances of technique in the model
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(recipe, Technique.class);
+        if(getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates)==null) {
+				error(INVALID_TECH_NAME_MSG, RecipePackage.Literals.INSTRUCTION__TECHNIQUE, INVALID_TECH_NAME);
+			}
+	}
+
+	@Check
+	public void checkInstructionParameterCorrect(InstructionParameter instructionParam) {
+		Instruction instruction = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
+		// Getting the root
+        EObject root = EcoreUtil2.getRootContainer(instruction);
+        // Getting all the instances of technique in the book        
+        List<Technique> candidates = EcoreUtil2.getAllContentsOfType(root, Technique.class);
+        Technique t =getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
+        // Getting the recipe
+        Recipe recipe = EcoreUtil2.getContainerOfType(instruction, Recipe.class);
+        int iTechnique=0;
+        Object actual = null;
+        Map<Object, Integer> next = new HashMap<>();
+        int iInstructionParam=0;
+        InstructionParameter param=instruction.getParameters().get(iInstructionParam);
+        InstructionParameter previousParam = null;
+        while(previousParam!=instructionParam) {
+        	Object choice=null;
+        	next = getNextPossibilities(t, iTechnique, next);
+        	if(param.getAtag()!=null) {
+        		EObject ingUst = getIngredientOrUstensilFromATag(param.getAtag(), recipe);
+        		if(ingUst==null) {
+        			error(INVALID_INGR_UT_ATAG_MSG+param.getAtag(), RecipePackage.Literals.INSTRUCTION_PARAMETER__ATAG, INVALID_INGR_UT_ATAG);
+        		} else {
+        			if(ingUst instanceof Ingredient) {
+        				if(next.keySet().contains(INGREDIENTS)|| actual.equals(INGREDIENTS)) {
+        					actual = INGREDIENTS;
+        				} else {
+        					String msg =INVALID_INGR_PLACE_NAME_MSG+actual.toString()+" or "+next.toString();
+        					error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__ATAG, INVALID_INGR_PLACE_NAME);
+        				}
+        			} else if(ingUst instanceof Utensil) {
+        				if(next.keySet().contains(UTENSIL) || actual.equals(INGREDIENTS)) {
+        					actual = UTENSIL;
+        				}else {
+        					String msg =INVALID_UT_PLACE_NAME_MSG + actual.toString()+" or "+next.toString();
+        					error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__ATAG, INVALID_UT_PLACE_NAME);
+        				}
+        			}
+        		}
+        	} else if(param.getHtag()!=null) {
+        		List<Ingredient> list = getIngredientsFromHTag(param.getHtag(), recipe);
+        		if(list.size()==0) {
+        			error(INVALID_INGR_HTAG_MSG+param.getHtag(), RecipePackage.Literals.INSTRUCTION_PARAMETER__HTAG, INVALID_INGR_HTAG);
+        		} else if(next.keySet().contains(INGREDIENTS) || actual.equals(INGREDIENTS)) {
+        			actual = UTENSIL;
+    			} else {
+    				String msg = INVALID_INGR_HTAG_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+    				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__HTAG, INVALID_INGR_HTAG_PLACE_NAME);
+				}
+        	} else if(param.getParameter()!=null) {
+        		Object o = getIngredientOrUstensilOrPreparationFromName(param.getParameter(), recipe);
+        		if(o==null) {
+        			for(Object obj : next.keySet()) {
+        				if(obj instanceof Choices) {
+        					choice=obj;
+        				}
+        			}
+        			if(choice!=null) {
+        				error(INVALID_UST_INGR_PREP_NAME_MSG + param.getParameter(), RecipePackage.Literals.INSTRUCTION_PARAMETER__PARAMETER, INVALID_UST_INGR_PREP_NAME);
+        			}
+        		} else {
+        			if(o instanceof Ingredient) {
+        				if(next.keySet().contains(INGREDIENTS) || actual.equals(INGREDIENTS)) {
+        					actual = INGREDIENTS;
+            			} else {
+            				String msg = INVALID_INGR_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+            				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__PARAMETER, INVALID_INGR_PLACE_NAME);
+            			}
+        			} else if(o instanceof Utensil) {
+        				if(next.keySet().contains(UTENSIL) || actual.equals(UTENSIL)) {
+        					actual = UTENSIL;
+            			} else {
+            				String msg = INVALID_UT_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+            				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__PARAMETER, INVALID_UT_PLACE_NAME);
+            			}
+        			} else if(o instanceof String) {
+        				if(next.keySet().contains(PREPARATION)||next.keySet().contains(INGREDIENTS) || actual.equals(PREPARATION) || actual.equals(INGREDIENTS)) {
+        					actual = PREPARATION;
+            			} else {
+            				String msg = INVALID_PREP_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+            				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__PARAMETER, INVALID_PREP_PLACE_NAME);
+            			}
+        			}
+        		}
+        	} else if(param.getQt()!=null) {
+        		if(!next.keySet().contains(QUANTITY)) {
+    				String msg = INVALID_QT_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+    				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__QT, INVALID_QT_PLACE_NAME);
+    			} else {
+    				actual = QUANTITY;
+    			}
+        	} else if(param.getTemp()!=null) {
+        		if(!next.keySet().contains(TEMPERATURE)) {
+    				String msg = INVALID_TEMP_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+    				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__TEMP, INVALID_TEMP_PLACE_NAME);
+    			} else {
+    				actual = TEMPERATURE;
+    			}
+        	} else if(param.getTime()!=null) {
+        		if(!next.keySet().contains(TIME)) {
+    				String msg = INVALID_TIME_PLACE_NAME_MSG + actual.toString() +" or "+next.toString();
+    				error(msg, RecipePackage.Literals.INSTRUCTION_PARAMETER__TIME, INVALID_TIME_PLACE_NAME);
+    			} else {
+    				actual = TIME;
+    			}
+        	}
+           	iTechnique=next.getOrDefault(next, iTechnique);
+           	previousParam=param;
+           	iInstructionParam+=1;
+           	if(iInstructionParam<instruction.getParameters().size()) {
+           		param=instruction.getParameters().get(iInstructionParam);
+           	}
+        }
+	}
+
+	private Map<Object, Integer> getNextPossibilities(Technique t, int iTechnique, Map<Object, Integer> next) {
+		if(iTechnique < t.getParam().size()) {
+			ParamTechnique tmp = t.getParam().get(iTechnique);
+			next = new HashMap<>();
+		 	if(tmp.getObject()!=null) {
+			 	iTechnique++;
+			 	next.put(tmp.getObject(), iTechnique);
+			} else if(tmp.getObjectFac()!=null) {
+        		while(tmp.getObjectFac()!=null && iTechnique<t.getParam().size()-1) {
+        			iTechnique++;
+        			next.put(tmp.getObjectFac(),iTechnique);
+        			tmp=t.getParam().get(iTechnique);
+        		}
+        		if(tmp.getObject()!=null) {
+        			iTechnique++;
+        			next.put(tmp.getObject(),iTechnique);
+        		} else if(tmp.getChoices()!=null) {
+        			iTechnique++;
+        			next.put(tmp.getChoices(),iTechnique);
+        		}
+        	} else {
+        		iTechnique++;
+        		next.put(tmp.getChoices(), iTechnique);
+        	}
+		}
+		 return next;
+	}
+	
+	public Technique getTechniqueFromName(String name, List<Technique> techniques) {
+		for(Technique t : techniques) {
+			if(t.getName().equals(name)) {
+				return t;
+			}
+		}
+		return null;
+	}
+	
+	public String customStringToString(CustomString custom) {
+		String string = "";
+		for(String s : custom.getName()) {
+			string+=s+" ";
+		}
+		return string;
+	}
+
+	
+	public static EObject getIngredientOrUstensilFromATag(String atag, Recipe r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getTag()!=null) {
+				if(i.getTag().equals(atag)) {
+					return i;
+				}
+			}
+		}
+		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
+			if(u.getTag()!=null) {
+				if(u.getTag().equals(atag)) {
+					return u;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static List<Ingredient> getIngredientsFromHTag(String htag, Recipe r) {
+		List<Ingredient> ingredients=new ArrayList<>();
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getGroup()!=null) {
+				if(i.getGroup().equals(htag)) {
+					ingredients.add(i);
+				}
+			}
+		}
+		return ingredients;
+	}
+	
+	public Object getIngredientOrUstensilOrPreparationFromName(CustomString s, Recipe r) {
+		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
+			if(i.getName()!=null) {
+				if(customStringToString(i.getName()).equals(customStringToString(s))) {
+					return i;
+				}
+			}
+		}
+		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
+			if(u.getName()!=null) {
+				if(customStringToString(u.getName()).equals(customStringToString(s))) {
+					return u;
+				}
+			}
+		}
+		
+		for(String prep : getPreparationListFromRecipe((Recipe)r)) {// EcoreUtil2.getAllContentsOfType( r, Preparation.class);
+			if(prep.equals(customStringToString(s))) {
+				return prep;
+			}
+		}
+		return null;
+	}
+	
+	public List<String> getPreparationListFromRecipe(Recipe r) {
+		List<String> preparations = new ArrayList<>();
+		for(Instruction i : r.getInstructions().getInst()) {
+			if(i.getPreparation()!=null) {
+				preparations.add(customStringToString(i.getPreparation()));
+			}
+		}
+		return preparations;
+	}
 }
