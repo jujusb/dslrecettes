@@ -22,7 +22,7 @@ Choices: // A list of words or groups of words that qualify the result
 ;
 
 Choice: 
-	choix+=CustomString ("," choix+=CustomString)*
+	choice+=CustomString ("," choice+=CustomString)*
 ;
 
 TechParameterType: // The type of an element that can be used as a parameter of a technique
