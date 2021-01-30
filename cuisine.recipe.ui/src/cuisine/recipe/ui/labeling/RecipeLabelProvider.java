@@ -4,6 +4,9 @@
 package cuisine.recipe.ui.labeling;
 
 import com.google.inject.Inject;
+
+import cuisine.recipe.recipe.*;
+
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider;
 
@@ -21,11 +24,31 @@ public class RecipeLabelProvider extends DefaultEObjectLabelProvider {
 
 	// Labels and icons can be computed like this:
 	
-//	String text(Greeting ele) {
-//		return "A greeting to " + ele.getName();
-//	}
-//
-//	String image(Greeting ele) {
-//		return "Greeting.gif";
-//	}
+	String text(Technique tech) {
+		return tech.getName();
+	}
+
+	String image(Technique tech) {
+		return "tech.gif";
+	}
+	
+	String text(Recipe rec) {
+		return "Recette : " + rec.getName().toString();
+	}
+
+	String image(Recipe rec) {
+		return "recipe.gif";
+	}
+	
+	String image(Ustensil ust) {
+		return "utensil.gif";
+	}
+	
+	String image(Ingredient ing) {
+		return "ingredient.gif";
+	}
+	
+	String image(Instruction tech) {
+		return "instruction.gif";
+	}
 }
