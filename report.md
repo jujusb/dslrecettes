@@ -29,3 +29,17 @@
 # The labeling features with images (Antonin):
 
 `cuisine.recipe.ui/src/cuisine/recipe/ui/contentassist/RecipeProposalProvider.java`
+
+# Setting the keywords colour (TODO):
+
+`cuisine.recipe.ui/src/cuisine/recipe/ui/RecipeUiModule.java`
+
+`cuisine.recipe.ui/src/cuisine/recipe/ui/coloring/RecipeHighlightingConfiguration.java` (to create)
+
+# Semantic highlighting (TODO):
+
+`cuisine.recipe.ui/src/cuisine/recipe/ui/RecipeUiModule.java`
+
+`cuisine.recipe.ui/src/cuisine/recipe/ui/coloring/RecipeSemanticHighlightingCalculator.java` (to create)
+
+`cuisine.recipe.ui/src/cuisine/recipe/ui/coloring/RecipeHighlightingConfiguration.java`
