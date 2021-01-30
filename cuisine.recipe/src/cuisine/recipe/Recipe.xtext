@@ -5,59 +5,71 @@ generate recipe "http://www.recipe.cuisine/Recipe"
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 Model:
-	(defTechniques+=Technique | recipes+=Recipe)*;
+	(defTechniques+=Technique | recipes+=Recipe)*; // Sequence of techniques and recipes
 	
 Technique:
-	"define" name=WORD param+=ParamTechnique+
+	"define" name=WORD param+=ParamTechnique+ // Definition of a technique
 	;
 
 ParamTechnique: 
-	"[" objectFac=IngrUslTech "]" | object=IngrUslTech | "{" choices=Choices "}"
+	"[" objectFac=TechParameterType "]" // Optional parameter
+	| object=TechParameterType // Mandatory parameter
+	| "{" choices=Choices "}"
 ;
 
-Choices: 
-	choix+=CustomString ("," choix+=CustomString)* | "{" choices+=Choices "}" ("," "{" choices+=Choices "}")*  
+Choices: // A list of words or groups of words that qualify the result
+	choice+=CustomString ("," choice+=CustomString)* | "{" choices+=Choices "}" ("," "{" choices+=Choices "}")*  
 ;
 
-IngrUslTech:
-	"ingredient" | "ustensil" | "preparation" | "temperature" | "tool" | 'quantity' | 'time'
+TechParameterType: // The type of an element that can be used as a parameter of a technique
+	"ingredient" | "utensil" | "preparation" | "temperature" | "tool" | 'quantity' | 'time'
 ;
 
 Recipe:
-	"recipe" "{" "name" ":" name=CustomString "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+	"recipe" "{"
+		"name" ":" name=CustomString
+		"time" ":" time=DOUBLE
+		"nb_pers" ":" nb=DOUBLE
+		ingredients=IngredientList
+		utensils=UtensilList
+		instructions=InstructionList
+	"}" 
 ;
 
-Ustensils:
-	{Ustensils} "ustensils" ":" "{" (ust+=Ustensil (','ust+=Ustensil)*)? "}"
+IngredientList : // List of all the requires ingredients in the recipe
+	{IngredientList} "ingredients" ":" "{" (ingr+=Ingredient (',' ingr+=Ingredient)*)? "}"
 ;
 
-Ustensil:
+Ingredient: // Definition of a specific ingredient
+	name=CustomString ":" // Ingredient name : can be in multiple words
+	qty=Quantity
+	("#" group=WORD)? // To refer to several elements as a group
+	("@" tag=WORD)? // To refer to an element using a shorter word
+;
+
+
+UtensilList: // List of all the utensils required for the recipe
+	{UtensilList} "utensils" ":" "{" (uten+=Utensil (','uten+=Utensil)*)? "}"
+;
+
+Utensil: // Definition of a specific utensil, the tag may be used in order to have a shorter reference
 	name=CustomString ("@" tag=WORD)? 
 ;
-
-Ingredients : 
-	{Ingredients} "ingredients" ":" "{" (ingr+=Ingredient (',' ingr+=Ingredient)*)? "}"
+Quantity:
+	qt=DOUBLE (quantifier=Quantifier)? | {Quantity} "any"
 ;
 
-Ingredient:
-	name=CustomString ":" qte=Quantite ("#" group=WORD)? ("@" tag=WORD)? 
+Quantifier:
+	mesure=Measure 
 ;
 
-Quantite:
-	qt=DOUBLE (quantificateur=Quantificateurs)? | {Quantite} "any"
-;
-
-Quantificateurs:
-	mesure=Mesure 
-;
-
-Mesure:
+Measure:
 	"kg" | "hg" | "dag" | "g" | "dg" | "cg" | "mg" | "kl" | "hl" | "dal" | "l" | "dl" | "cl" | "ml"| "kL" | "hL" | "daL" | "L" | "dL" | "cL" | "mL" | "càc" | "cc" | "càs" | "cs" 
 ;
 
 
-Instructions: 
-	{Instructions} "instructions" ":" "{" (inst+=Instruction (';' inst+=Instruction)*)? "}"
+InstructionList: 
+	{InstructionList} "instructions" ":" "{" (inst+=Instruction (';' inst+=Instruction)*)? "}"
 ;
 
 Instruction:
@@ -72,7 +84,7 @@ Temp:
 ;
 
 InstructionParameter:
-	parameter=CustomString | '#' htag=WORD | '@' atag=WORD | qte=DOUBLE (qt=Quantificateurs | time=Timing | temp=Temp)
+	parameter=CustomString | '#' htag=WORD | '@' atag=WORD | qte=DOUBLE (qt=Quantifier | time=Timing | temp=Temp)
 ;
 
 
@@ -80,6 +92,9 @@ CustomString:
 	name+=WORD+
 ;
 
+
+
 terminal DOUBLE returns ecore::EDouble : INT('.'INT)? ;
 terminal WORD returns ecore::EString : '^'?('a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')') ('0'..'9'|'a'..'z'|'A'..'Z'|'À'..'ÿ'|'\''|'('|')'|'_')*;
 terminal COMMENT returns ecore::EString : '"' -> '"';
+
