@@ -40,7 +40,7 @@ public class RecipeLabelProvider extends DefaultEObjectLabelProvider {
 		return "recipe.gif";
 	}
 	
-	String image(Ustensil ust) {
+	String image(Utensil ust) {
 		return "utensil.gif";
 	}
 	
