@@ -28,7 +28,7 @@ IngrUslTech:
 ;
 
 Recipe:
-	"recipe" "{" "name" ":" name=CustomString "time" ":" time=DOUBLE "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
+	"recipe" "{" "name" ":" name=CustomString "time" ":" (time+=DOUBLE timeUnit+=Timing)+ "nb_pers" ":" nb=DOUBLE ingredients=Ingredients ustensils=Ustensils instructions=Instructions "}" 
 ;
 
 Ustensils:

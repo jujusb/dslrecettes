@@ -53,9 +53,9 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	public void completeModel_Recipes(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeModel_Recipes(model, assignment, context, acceptor);
 		String proposal = "recipe {\n"
-				+ "	name: <name>\n"
-				+ "	time: <time (in min)>\n"
-				+ "	nb_pers: <nb>\n"
+				+ "	name: name Recipe\n"
+				+ "	time: 0min\n"
+				+ "	nb_pers: 0\n"
 				+ "	ingredients:{\n"
 				+ "	}\n"
 				+ "	ustensils:{\n"
@@ -134,6 +134,8 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	
 	public void completeUstensils_Ust(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeUstensils_Ust(model, assignment, context, acceptor);
+		String proposal = "name Utensil @name,";
+		acceptor.accept(createCompletionProposal(proposal, context));
 	}
 	
 	public void completeUstensil_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -146,6 +148,8 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	
 	public void completeIngredients_Ingr(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeIngredients_Ingr(model, assignment, context, acceptor);
+		String proposal = "name Ingredient : any #group @name,";
+		acceptor.accept(createCompletionProposal(proposal, context));
 	}
 	
 	public void completeIngredient_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
