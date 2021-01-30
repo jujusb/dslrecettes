@@ -63,7 +63,7 @@ class RecipeParsingTest {
 			recipe {
 				name : Gaufres Trotro (lardons Cheddar et petits oignons)
 			    
-			    time : 15
+			    time : 15min
 			    
 			    nb_pers : 9.5
 			        
@@ -140,7 +140,7 @@ class RecipeParsingTest {
 			recipe {
 				name : Roscon de Reyes Receta navideña
 			    
-			    time : 360
+			    time : 360min
 			
 			    nb_pers : 10
 			    

@@ -35,13 +35,24 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 			return "Choices";
 		}
 	}
+	public Object _text(Time time) {
+		if(time.getTimeUnit().equals("s")) {
+			return time.getTime()+" seconds";
+		} else if(time.getTimeUnit().equals("min")) {
+			return time.getTime()+" minutes";
+		} else if(time.getTimeUnit().equals("h")) {
+			return time.getTime()+" hours";
+		} else {
+			return time.getTime()+" days";
+		}
+	}
 	
 	public Object _text(Choices choices) {
-		if(choices.getChoice()!=null) {
-			return "[]";
-		} else {
-			return "Choices";
-		}
+		return "[]";
+	}
+	
+	public Object _text(Choice choices) {
+		return "[]";
 	}
 	
 	public Object _text(Recipe recipe) {

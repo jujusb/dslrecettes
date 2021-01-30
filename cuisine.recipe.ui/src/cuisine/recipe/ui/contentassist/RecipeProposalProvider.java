@@ -613,8 +613,8 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 			}
 		}
 	}
-	public void completeRecipe_TimeUnit(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		super.completeRecipe_TimeUnit(model, assignment, context, acceptor);
+	public void completeTime_TimeUnit(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeTime_TimeUnit(model, assignment, context, acceptor);
 		for(String proposal : Arrays.asList("s" ,"min",  "h", "days")) {
 			acceptor.accept(createCompletionProposal(proposal, context));
 		}

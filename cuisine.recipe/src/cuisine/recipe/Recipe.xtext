@@ -32,12 +32,15 @@ TechParameterType: // The type of an element that can be used as a parameter of 
 Recipe:
 	"recipe" "{"
 		"name" ":" name=CustomString
-		"time" ":" (time+=DOUBLE timeUnit+=Timing)+
+		"time" ":" (time+=Time)+
 		"nb_pers" ":" nb=DOUBLE
 		ingredients=IngredientList
 		utensils=UtensilList
 		instructions=InstructionList
 	"}" 
+;
+Time:
+	time=DOUBLE timeUnit=Timing
 ;
 
 IngredientList : // List of all the requires ingredients in the recipe

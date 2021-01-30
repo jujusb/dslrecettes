@@ -15,6 +15,7 @@ import cuisine.recipe.recipe.Quantity
 import cuisine.recipe.recipe.Recipe
 import cuisine.recipe.recipe.Utensil
 import cuisine.recipe.recipe.UtensilList
+import cuisine.recipe.recipe.Time
 import java.util.ArrayList
 import java.util.List
 import org.eclipse.emf.ecore.resource.Resource
@@ -41,7 +42,7 @@ class RecipeGenerator extends AbstractGenerator {
 	def dispatch compile(Object object) '''this statement is not supported:«object»'''
 	
 	def dispatch compile(Recipe recipe) '''«getRecipe(recipe)»\section{«recipe.name.compile»}
-Preparation et cuisson:«recipe.time» minutes
+Preparation et cuisson:«FOR t : recipe.getTime()»«t.compile »«ENDFOR»
 
 
 Pour «recipe.nb» personnes
@@ -60,7 +61,7 @@ Instructions:
 
 
 '''
-
+	def dispatch compile(Time t) '''«t.getTime()» «t.getTimeUnit()»'''
    def dispatch compile(UtensilList uts) '''
 	\begin{multicols}{3}
 	\begin{itemize}
