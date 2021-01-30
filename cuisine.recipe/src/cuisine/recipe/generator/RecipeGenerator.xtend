@@ -7,8 +7,8 @@ import cuisine.recipe.recipe.CustomString
 import cuisine.recipe.recipe.Ingredient
 import cuisine.recipe.recipe.IngredientList
 import cuisine.recipe.recipe.Instruction
-import cuisine.recipe.recipe.InstructionParameter
 import cuisine.recipe.recipe.InstructionList
+import cuisine.recipe.recipe.InstructionParameter
 import cuisine.recipe.recipe.Model
 import cuisine.recipe.recipe.Quantifier
 import cuisine.recipe.recipe.Quantity
