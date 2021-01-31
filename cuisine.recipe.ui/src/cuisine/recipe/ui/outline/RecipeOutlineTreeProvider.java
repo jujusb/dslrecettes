@@ -11,6 +11,7 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode;
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
 import cuisine.recipe.recipe.*;
+import cuisine.recipe.validation.RecipeValidator;
 
 /**
  * Customization of the default outline structure.
@@ -30,7 +31,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 		if(!(param.getObject()==null)) {
 			return param.getObject();
 		} else if(!(param.getObjectFac()==null)) {
-			return "facultatif "+param.getObjectFac();
+			return "Facultatif "+param.getObjectFac();
 		} else {
 			return "Choices";
 		}
@@ -60,7 +61,7 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 	}
 
    public Object _text(IngredientList ingrs) {
-	   return "ingredients";  
+	   return "Ingredients";  
    }
 	
 	public Object _text(Ingredient ing) {
@@ -133,8 +134,6 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
     	   createNode(parent, instruction.getPreparation());
        }
 	}
-
-   
    
 	public Object _text(InstructionParameter param) {
 		if(!(param.getAtag()==null)) {
@@ -160,13 +159,13 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
     public void _createChildren(IOutlineNode parent, InstructionParameter param) {
     	EObject r = EcoreUtil2.getContainerOfType(param, Recipe.class);
 		if(!(param.getAtag()==null)) {
-			createNode(parent, getIngredientOrUstensilFromATag(param.getAtag(),r));
+			createNode(parent, RecipeValidator.getIngredientOrUstensilFromATag(param.getAtag(),(Recipe) r));
 		} else if(!(param.getHtag()==null)) {
-			for(Ingredient i : getIngredientsFromHTag(param.getHtag(),r)) {
+			for(Ingredient i : RecipeValidator.getIngredientsFromHTag(param.getHtag(),(Recipe) r)) {
 				createNode(parent, i);
 			}
 		} else if(!(param.getParameter()==null)) {
-			EObject e = (EObject) getIngredientOrUstensilOrPreparationFromName(param.getParameter(),r);
+			EObject e = (EObject) RecipeValidator.getIngredientOrUstensilOrPreparationFromName(param.getParameter(),(Recipe) r);
 			if(e!=null) {
 				createNode(parent, e);
 			}
@@ -174,69 +173,10 @@ public class RecipeOutlineTreeProvider extends DefaultOutlineTreeProvider {
 	}
 
 	public Object _text(CustomString str) {
-		String st = "";
-		for(String s : str.getName()) {
-			st+=s+" ";
-		}
-		return st;
+		return RecipeValidator.customStringToString(str);
 	}
 
 	public Object _text(Model model) {
 		return "Livre de recette";
-	}
-	
-	public EObject getIngredientOrUstensilFromATag(String atag, EObject r) {
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getTag()!=null) {
-				if(i.getTag().equals(atag)) {
-					return i;
-				}
-			}
-		}
-		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
-			if(u.getTag()!=null) {
-				if(u.getTag().equals(atag)) {
-					return u;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public List<Ingredient> getIngredientsFromHTag(String htag, EObject r) {
-		List<Ingredient> ingredients=new ArrayList<>();
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getGroup()!=null) {
-				if(i.getGroup().equals(htag)) {
-					ingredients.add(i);
-				}
-			}
-		}
-		return ingredients;
-	}
-	
-	public Object getIngredientOrUstensilOrPreparationFromName(CustomString s, EObject r) {
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getName()!=null) {
-				if(_text(i.getName()).equals(_text(s))) {
-					return i;
-				}
-			}
-		}
-		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
-			if(u.getName()!=null) {
-				if(_text(u.getName()).equals(_text(s))) {
-					return u;
-				}
-			}
-		}
-		//List<EObject> preparations = EcoreUtil2.getAllReferencedObjects( r, RecipePackage.Literals.INSTRUCTION__PREPARATION);
-		
-		for(CustomString prep : preparations) {
-			if(_text(prep).equals(_text(s))) {
-				return prep;
-			}
-		}
-		return null;
 	}
 }

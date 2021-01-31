@@ -15,6 +15,9 @@ import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import java.util.stream.Stream
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import cuisine.recipe.validation.RecipeValidator
+import java.util.Set
+import cuisine.recipe.recipe.RecipePackage
 
 @ExtendWith(InjectionExtension)
 @InjectWith(RecipeInjectorProvider)
@@ -250,5 +253,79 @@ class RecipeParsingTest {
 		recipes = parseHelper.parse(seq)
 		Assertions.assertNotNull(recipes)
 		recipes.assertNoIssues
-	}	
+	}
+	
+	@Test
+	def void testVerificateur() {
+		recipes = parseHelper.parse('''
+					define grill [utensil] ingredient [time] [temperature]
+					define grease utensil [temperature]
+					''')
+		Assertions.assertNotNull(recipes)
+		recipes.assertNoIssues
+		Assertions.assertEquals(Set.of(RecipeValidator.TEMPERATURE),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 3, RecipeValidator.TIME).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.TEMPERATURE, RecipeValidator.INGREDIENTS),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 3, RecipeValidator.INGREDIENTS).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.TEMPERATURE,RecipeValidator.TIME),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 2, null).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.TEMPERATURE,RecipeValidator.TIME, RecipeValidator.INGREDIENTS),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 2, RecipeValidator.INGREDIENTS).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.INGREDIENTS),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 1, null).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.UTENSIL,RecipeValidator.INGREDIENTS),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(0), 0, null).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.TEMPERATURE),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(1), 1, null).keySet())
+		Assertions.assertEquals(Set.of(RecipeValidator.UTENSIL),RecipeValidator.getNextPossibilities(recipes.defTechniques.get(1), 0, null).keySet())
+	}
+	
+	@Test
+	def void testVerif() {
+		recipes = parseHelper.parse('''
+					define grill [utensil] ingredient [time] [temperature]
+					recipe {
+						name : Roscon de Reyes Receta navideña
+					    
+					    time : 360min
+					
+					    nb_pers : 10
+					    
+					    ingredients: {
+					    	roscon cru : any
+					    }
+					    utensils: {
+					    	four
+					    }
+							    
+					   instructions: {
+					   		grill  four, roscon cru, 20min, 180°C-> roscon_cuit
+					    }
+					}
+		''')
+		Assertions.assertNotNull(recipes)
+		recipes.assertNoIssues
+		recipes.assertNoErrors
+	}
+	
+	@Test
+	def void testVerifFalse() {
+		recipes = parseHelper.parse('''
+					define grill [utensil] ingredient [time] [temperature]
+					recipe {
+						name : Roscon de Reyes Receta navideña
+					    
+					    time : 360min
+					
+					    nb_pers : 10
+					    
+					    ingredients: {
+					    	roscon cru : any
+					    }
+					    utensils: {
+					    	four
+					    }
+							    
+					   instructions: {
+					   		grill  four, roscon cru, 180°C, 20min -> roscon_cuit
+					    }
+					}
+		''')
+		Assertions.assertNotNull(recipes)
+		recipes.assertNoIssues
+		recipes.assertNoErrors //Devrait renvoyer une erreur
+	}
 }

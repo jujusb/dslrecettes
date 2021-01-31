@@ -19,6 +19,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
 import cuisine.recipe.recipe.*;
+import cuisine.recipe.validation.RecipeValidator;
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#content-assist
@@ -28,18 +29,10 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	List<String> paramsTechniques = new ArrayList<>();
 	List<String> paramsQuantificateur = new ArrayList<>();
 	List<String> preparationsCurrentRecipe= new ArrayList<>();
-	final String INGREDIENTS = "ingredient";
-	final String UTENSIL = "utensil";
-	final String PREPARATION = "preparation";
-	final String QUANTITY = "quantity";
-	final String TEMPERATURE = "temperature";
-	final String TIME = "time";
-	final String TOOL = "tool";
-	final String CHOICES = "choices";
 	boolean canCompleteInt=false;
 	public RecipeProposalProvider() {	
 		Collections.addAll(paramsQuantificateur,"kg" , "hg" , "dag" , "g" , "dg" , "cg" , "mg" , "kl" , "hl" , "dal" , "l" , "dl" , "cl" , "ml", "kL" , "hL" , "daL" , "L" , "dL" , "cL" , "mL" , "càc" , "cc" , "càs" , "cs");
-		Collections.addAll(paramsTechniques,INGREDIENTS,UTENSIL,PREPARATION,TEMPERATURE,TOOL,QUANTITY,TIME);		
+		Collections.addAll(paramsTechniques,RecipeValidator.INGREDIENTS,RecipeValidator.UTENSIL,RecipeValidator.PREPARATION,RecipeValidator.TEMPERATURE,RecipeValidator.TOOL,RecipeValidator.QUANTITY,RecipeValidator.TIME);		
 	}
 	
 	@Override
@@ -185,8 +178,11 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	}
 	public void completeQuantifier_Mesure(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeQuantifier_Mesure(model, assignment, context, acceptor);
-		for(String proposal: paramsQuantificateur) {
-			acceptor.accept(createCompletionProposal(proposal, context));
+		Instruction i = EcoreUtil2.getContainerOfType(model, Instruction.class);
+		if(i==null) {
+			for(String proposal: paramsQuantificateur) {
+				acceptor.accept(createCompletionProposal(proposal, context));
+			}
 		}
 	}
 	
@@ -212,7 +208,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         EObject rootElement = EcoreUtil2.getRootContainer(instruction);
         // Getting all the instances of Technique in the model
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
-		Technique t = getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
+		Technique t = RecipeValidator.getTechniqueFromName(((Instruction) instruction).getTechnique(), candidates);
 		if(t!=null) {
 			boolean choices=false;
 			boolean intProposal = false;
@@ -221,9 +217,9 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 			Instruction inst = (Instruction) instruction;
 			Set<String> delimiter = new HashSet<>();
 			ParamTechnique param = getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
-			if(value.contains(INGREDIENTS)) {
+			if(value.contains(RecipeValidator.INGREDIENTS)) {
 				Set<String> delimiterIngredient=new HashSet<>();
-				if(value.get(value.size()-1).equals(INGREDIENTS)) {
+				if(value.get(value.size()-1).equals(RecipeValidator.INGREDIENTS)) {
 					for(String v : delimiter) {
 						delimiterIngredient.add(v);
 					}
@@ -231,7 +227,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 				delimiterIngredient.add(",");
 				for(Ingredient ing : recipe.getIngredients().getIngr()) {
 					for(String d : delimiterIngredient) {
-						acceptor.accept(createCompletionProposal(customStringToString(ing.getName())+d, context));
+						acceptor.accept(createCompletionProposal(RecipeValidator.customStringToString(ing.getName())+d, context));
 						if(ing.getTag()!=null) {
 							acceptor.accept(createCompletionProposal("@"+ing.getTag()+d, context));
 						}
@@ -239,16 +235,16 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 							acceptor.accept(createCompletionProposal("#"+ing.getGroup()+d, context));
 						}
 					}
-					for(String preparation : getPreparationListFromRecipe(recipe)) {
+					for(String preparation : RecipeValidator.getPreparationListFromRecipe(recipe)) {
 						for(String d : delimiterIngredient) {
 							acceptor.accept(createCompletionProposal(preparation+d, context));
 						}
 					}
 				}
 			}
-			if(value.contains(UTENSIL) || value.contains(TOOL)) {
+			if(value.contains(RecipeValidator.UTENSIL) || value.contains(RecipeValidator.TOOL)) {
 				Set<String> delimiterUstensil=new HashSet<>();
-				if(value.get(value.size()-1).equals(UTENSIL)||value.get(value.size()-1).equals(TOOL)) {
+				if(value.get(value.size()-1).equals(RecipeValidator.UTENSIL)||value.get(value.size()-1).equals(RecipeValidator.TOOL)) {
 					for(String v : delimiter) {
 						delimiterUstensil.add(v);
 					}
@@ -256,46 +252,46 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 				delimiterUstensil.add(",");
 				for(Utensil u : recipe.getUtensils().getUten()) {
 					for(String d : delimiterUstensil) {
-						acceptor.accept(createCompletionProposal(customStringToString(u.getName())+d, context));
+						acceptor.accept(createCompletionProposal(RecipeValidator.customStringToString(u.getName())+d, context));
 						if(u.getTag()!=null) {
 							acceptor.accept(createCompletionProposal("@"+u.getTag() + d, context));
 						}
 					}
 				}
 			}
-			if(value.contains(PREPARATION)) {
+			if(value.contains(RecipeValidator.PREPARATION)) {
 				Set<String> delimiterPreparation=new HashSet<>();
-				if(value.get(value.size()-1).equals(PREPARATION)) {
+				if(value.get(value.size()-1).equals(RecipeValidator.PREPARATION)) {
 					for(String v : delimiter) {
 						delimiterPreparation.add(v);
 					}
 				}
 				delimiterPreparation.add(",");
-				for(String preparation : getPreparationListFromRecipe(recipe)) {
+				for(String preparation : RecipeValidator.getPreparationListFromRecipe(recipe)) {
 					for(String d : delimiterPreparation) {
 						acceptor.accept(createCompletionProposal(preparation+d, context));
 					}
 				}
 			}
-			if(value.size()>1 && (value.get(1).equals(QUANTITY) || value.get(1).equals(TIME) || value.get(1).equals(TEMPERATURE))) {
+			if(value.size()>1 && (value.get(1).equals(RecipeValidator.QUANTITY) || value.get(1).equals(RecipeValidator.TIME) || value.get(1).equals(RecipeValidator.TEMPERATURE))) {
 				intProposal=true;
-			} else {
-				if(value.get(0).equals(QUANTITY) || value.get(0).equals(TIME) || value.get(0).equals(TEMPERATURE)) {
+			} else if(value.size()==1) {
+				if(value.get(0).equals(RecipeValidator.QUANTITY) || value.get(0).equals(RecipeValidator.TIME) || value.get(0).equals(RecipeValidator.TEMPERATURE)) {
 					intProposal=true;
 				}
 			}
 			if(intProposal) {
-				//each int value is converted as a string value to be one proposal for QUANTITY, TIME and TEMPERATURE values
+				//each int value is converted as a string value to be one proposal for RecipeValidator.QUANTITY, RecipeValidator.TIME and RecipeValidator.TEMPERATURE values
 				IntStream
 					.range(0, 10)
 					.mapToObj(i -> String.valueOf(i))
 					.forEach(i -> acceptor.accept(createCompletionProposal(i, context)));
 				canCompleteInt=true;
 			}
-			if(value.size()>1 && value.get(1).equals(CHOICES)) {
+			if(value.size()>1 && value.get(1).equals(RecipeValidator.CHOICES)) {
 				choices=true;
 			} else {
-				if(t.getParam().size()==1 && value.get(0).equals(CHOICES)) {
+				if(t.getParam().size()==1 && value.get(0).equals(RecipeValidator.CHOICES)) {
 					choices=true;
 				}
 			}
@@ -373,7 +369,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 		} else if(param.getObjectFac()!=null) {
 			value.add(param.getObjectFac());
 		} else {
-			value.add(CHOICES);
+			value.add(RecipeValidator.CHOICES);
 		}
 	}
 	
@@ -383,46 +379,46 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 		for(InstructionParameter param : list) {
 			String toAdd = "";
 			if(param.getHtag()!=null) {
-				if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(INGREDIENTS)) {
-					toAdd=INGREDIENTS;	
+				if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.INGREDIENTS)) {
+					toAdd=RecipeValidator.INGREDIENTS;	
 				}
 			} else if(param.getAtag()!=null) {
-				EObject l = getIngredientOrUstensilFromATag(param.getAtag(), r);
+				EObject l = RecipeValidator.getIngredientOrUstensilFromATag(param.getAtag(), r);
 				if(l instanceof Ingredient) {
-					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(INGREDIENTS)) {
-						toAdd = INGREDIENTS;	
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.INGREDIENTS)) {
+						toAdd = RecipeValidator.INGREDIENTS;	
 					}
 				} else if(l instanceof Utensil) {
-					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(UTENSIL)) {
-						toAdd = UTENSIL;	
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.UTENSIL)) {
+						toAdd = RecipeValidator.UTENSIL;	
 					}
 				}
 			} else if(param.getParameter()!=null) {
-				Object l = getIngredientOrUstensilOrPreparationFromName(param.getParameter(), r);
+				Object l = RecipeValidator.getIngredientOrUstensilOrPreparationFromName(param.getParameter(), r);
 				if(l instanceof Ingredient) {
-					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(INGREDIENTS)) {
-						toAdd = INGREDIENTS;	
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.INGREDIENTS)) {
+						toAdd = RecipeValidator.INGREDIENTS;	
 					}
 				} else if(l instanceof Utensil) {
-					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(UTENSIL)) {
-						toAdd = UTENSIL;
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.UTENSIL)) {
+						toAdd = RecipeValidator.UTENSIL;
 					}
 				} else if(l instanceof CustomString) {
-					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(PREPARATION)) {
-						toAdd = PREPARATION;	
+					if(lParameters.isEmpty() || !lParameters.get(lParameters.size()-1).equals(RecipeValidator.PREPARATION)) {
+						toAdd = RecipeValidator.PREPARATION;	
 					}
 				} else {
-					lParameters.add(CHOICES);
+					lParameters.add(RecipeValidator.CHOICES);
 					size++;
 				}
 			} else if(param.getQt()!=null) {
-				lParameters.add(QUANTITY);
+				lParameters.add(RecipeValidator.QUANTITY);
 				size++;
 			} else if(param.getTemp()!=null) {
-				lParameters.add(TEMPERATURE);
+				lParameters.add(RecipeValidator.TEMPERATURE);
 				size++;
 			}else if(param.getTime()!=null) {
-				lParameters.add(TIME);
+				lParameters.add(RecipeValidator.TIME);
 				size++;
 			} 
 			if(!toAdd.equals("")) {
@@ -452,88 +448,6 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 		return lParameters;
 	}
 	
-	public static EObject getIngredientOrUstensilFromATag(String atag, EObject r) {
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getTag()!=null) {
-				if(i.getTag().equals(atag)) {
-					return i;
-				}
-			}
-		}
-		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
-			if(u.getTag()!=null) {
-				if(u.getTag().equals(atag)) {
-					return u;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static List<Ingredient> getIngredientsFromHTag(String htag, EObject r) {
-		List<Ingredient> ingredients=new ArrayList<>();
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getGroup()!=null) {
-				if(i.getGroup().equals(htag)) {
-					ingredients.add(i);
-				}
-			}
-		}
-		return ingredients;
-	}
-	
-	public Object getIngredientOrUstensilOrPreparationFromName(CustomString s, EObject r) {
-		for(Ingredient i : ((Recipe)r).getIngredients().getIngr()) {
-			if(i.getName()!=null) {
-				if(customStringToString(i.getName()).equals(customStringToString(s))) {
-					return i;
-				}
-			}
-		}
-		for(Utensil u : ((Recipe)r).getUtensils().getUten()) {
-			if(u.getName()!=null) {
-				if(customStringToString(u.getName()).equals(customStringToString(s))) {
-					return u;
-				}
-			}
-		}
-		
-		for(String prep : getPreparationListFromRecipe((Recipe)r)) {// EcoreUtil2.getAllContentsOfType( r, Preparation.class);
-			if(prep.equals(customStringToString(s))) {
-				return prep;
-			}
-		}
-		return null;
-	}
-	
-	public List<String> getPreparationListFromRecipe(Recipe r) {
-		List<String> preparations = new ArrayList<>();
-		for(Instruction i : r.getInstructions().getInst()) {
-			if(i.getPreparation()!=null) {
-				preparations.add(customStringToString(i.getPreparation()));
-			}
-		}
-		return preparations;
-	}
-	
-	
-	public String customStringToString(CustomString custom) {
-		String string = "";
-		for(String s : custom.getName()) {
-			string+=s+" ";
-		}
-		return string;
-	}
-	
-	public Technique getTechniqueFromName(String name, List<Technique> techniques) {
-		for(Technique t : techniques) {
-			if(t.getName().equals(name)) {
-				return t;
-			}
-		}
-		return null;
-	}
-	
 	public void completeInstruction_Comment(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeInstruction_Comment(model, assignment, context, acceptor);
 	}
@@ -559,17 +473,17 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         // Getting all the instances of Technique in the model
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
         Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
-		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		Technique t = RecipeValidator.getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
 		if(t!=null) {
 			List<String> value=new ArrayList<>();
 			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
 			Set<String> delimiter = new HashSet<>();
 			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
 			boolean quantity=false;
-			if(value.size()>1 && (value.get(1).equals(QUANTITY))) {
+			if(value.size()>1 && (value.get(1).equals(RecipeValidator.QUANTITY))) {
 				quantity=true;
 			} else {
-				if(value.get(0).equals(QUANTITY)) {
+				if(value.get(0).equals(RecipeValidator.QUANTITY)) {
 					quantity=true;
 				}
 			}
@@ -589,17 +503,17 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         // Getting all the instances of Technique in the model
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
         Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
-		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		Technique t = RecipeValidator.getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
 		if(t!=null) {
 			List<String> value=new ArrayList<>();
 			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
 			Set<String> delimiter = new HashSet<>();
 			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
 			boolean time=false;
-			if(value.size()>1 && (value.get(1).equals(TIME))) {
+			if(value.size()>1 && (value.get(1).equals(RecipeValidator.TIME))) {
 				time=true;
 			} else {
-				if(value.get(0).equals(TIME)) {
+				if(value.get(0).equals(RecipeValidator.TIME)) {
 					time=true;
 				}
 			}
@@ -626,17 +540,17 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
         // Getting all the instances of Technique in the model
         List<Technique> candidates = EcoreUtil2.getAllContentsOfType(rootElement, Technique.class);
         Instruction inst = EcoreUtil2.getContainerOfType(instructionParam, Instruction.class);
-		Technique t = getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
+		Technique t = RecipeValidator.getTechniqueFromName(((Instruction) inst).getTechnique(), candidates);
 		if(t!=null) {
 			List<String> value=new ArrayList<>();
 			Recipe recipe = EcoreUtil2.getContainerOfType(inst, Recipe.class);
 			Set<String> delimiter = new HashSet<>();
 			getParamTechniqueCorrespondingToCurrentParameter(t, value, recipe, inst, delimiter);
 			boolean temperature=false;
-			if(value.size()>1 && (value.get(1).equals(TEMPERATURE))) {
+			if(value.size()>1 && (value.get(1).equals(RecipeValidator.TEMPERATURE))) {
 				temperature=true;
 			} else {
-				if(value.get(0).equals(TEMPERATURE)) {
+				if(value.get(0).equals(RecipeValidator.TEMPERATURE)) {
 					temperature=true;
 				}
 			}
