@@ -37,8 +37,7 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 	final String TOOL = "tool";
 	final String CHOICES = "choices";
 	boolean canCompleteInt=false;
-	public RecipeProposalProvider() {
-		
+	public RecipeProposalProvider() {	
 		Collections.addAll(paramsQuantificateur,"kg" , "hg" , "dag" , "g" , "dg" , "cg" , "mg" , "kl" , "hl" , "dal" , "l" , "dl" , "cl" , "ml", "kL" , "hL" , "daL" , "L" , "dL" , "cL" , "mL" , "càc" , "cc" , "càs" , "cs");
 		Collections.addAll(paramsTechniques,INGREDIENTS,UTENSIL,PREPARATION,TEMPERATURE,TOOL,QUANTITY,TIME);		
 	}
@@ -305,15 +304,15 @@ public class RecipeProposalProvider extends AbstractRecipeProposalProvider {
 				int index=0;
 				for(Choice l : param.getChoices().getChoices()) {
 					combinaisons.add(new ArrayList<>());
-					for(CustomString s : l.getChoice()) {
-						combinaisons.get(index).add(customStringToString(s));
+					for(String s : l.getChoice()) {
+						combinaisons.get(index).add(s);
 					}
 					index++;
 				}
 				getCombinations(new ArrayList<String>(), 0, combinaisons, delimiter, context, acceptor);
 				List<String> completions = new ArrayList<>();
-				for(CustomString c :param.getChoices().getChoice()) {
-					completions.add(customStringToString(c));
+				for(String c :param.getChoices().getChoice()) {
+					completions.add(c);
 				}
 				for(String choice :completions) {
 					for(String d : delimiter) {

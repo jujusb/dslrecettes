@@ -1,7 +1,9 @@
-define grill [utensil] ingredient
-define grease [utensil]
+
+define grill [utensil] ingredient [time] [temperature]
+define grease utensil [temperature]
 define reserve [quantity] ingredient [utensil]
-define mix [utensil] ingredient [preparation]
+define mix [utensil] ingredient [utensil]
+define tamiser ingredient
 define verser ingredient [utensil] [preparation]
 define trou_centre preparation
 define faire_croix preparation
@@ -20,13 +22,12 @@ define poser preparation utensil
 define battre_en_omellette ingredient
 define peindre preparation  preparation
 define humidifier ingredient [utensil]
-define poser ingredient preparation
 define laisser_refroidir preparation
 
 recipe {
 	name : Roscon de Reyes Receta navideña
     
-    time : 360
+    time : 360min
 
     nb_pers : 10
     
@@ -72,7 +73,7 @@ recipe {
     }
 		    
    instructions: {
-   		verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
+   		verser @cuil, @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
       	verser @pre_farine, @pbol -> melange;
       	trou_centre melange;
       	verser lait_avec_levure, melange -> melange;
@@ -121,8 +122,7 @@ recipe {
    		verser sucre_granulé, roscon_cru;
    		poser fruits confits, roscon_cru;
    		grease four, 200°C;
-   		grill four, roscon_cru, 20min, 180°C -> roscon_cuit;
-   		sortir roscon_cuit, four;
-   		laisser_refroidir roscon_cuit
+   		grill four, roscon_cru, 20min, 180°C-> roscon_cuit;
+   		sortir roscon_cuit , four 
     }
 }

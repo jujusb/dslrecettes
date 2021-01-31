@@ -51,10 +51,10 @@ class RecipeParsingTest {
 				define grease [utensil]''',
 			'''define grill [utensil] ingredient
 			define grease [utensil]
-			define cut [tool] ingredient {{small, medium, large}, {cubes, slices, bits}}
-			define reserve ingredient
+			define cut [utensil] ingredient {{small, medium, large}, {cubes, slices, bits}}
+			define reserve ingredient [quantity]
 			define heat utensil [temperature]
-			define mix [utensil] ingredient [preparation]
+			define mix [utensil] ingredient [utensil]
 			define pour ingredient [utensil] [preparation]
 			define distribute ingredient preparation
 			define cook ingredient [utensil]
@@ -95,13 +95,13 @@ class RecipeParsingTest {
 			    	Four
 			    }
 			        
-			    instructions: {
+			    instructions:{
 			    	grill Poele, Lardons Fumés "Biens dorés et croustillants";
 			        cut Lardons Fumés, small bits -> lardons;
 			        reserve Graisse des lardons cuits, 1cs "A ajouter aux ingrédients liquides";
-			        heat Gaufrier -> Gaufrier chaud;
-			        mix Fouet, #sec, Petit bol;
-			        mix #liquide, Grand bol;
+			        heat Gauffrier -> Gaufrier chaud;
+			        mix fouet, #sec, Petit bol;
+			        mix #liquide, Grand bol ;
 			        pour #sec, #liquide -> pate;
 			        mix fouet, pate "Plus de trace de farine";
 			        distribute lardons, @cheddar, Petits oignons émincées, pate;
@@ -112,10 +112,12 @@ class RecipeParsingTest {
 			}
 			''',
 			'''
-			define grill [utensil] ingredient
-			define grease [utensil]
+			
+			define grill [utensil] ingredient [time] [temperature]
+			define grease utensil [temperature]
 			define reserve [quantity] ingredient [utensil]
-			define mix [utensil] ingredient [preparation]
+			define mix [utensil] ingredient [utensil]
+			define tamiser ingredient
 			define verser ingredient [utensil] [preparation]
 			define trou_centre preparation
 			define faire_croix preparation
@@ -134,7 +136,6 @@ class RecipeParsingTest {
 			define battre_en_omellette ingredient
 			define peindre preparation  preparation
 			define humidifier ingredient [utensil]
-			define poser ingredient preparation
 			define laisser_refroidir preparation
 			
 			recipe {
@@ -186,7 +187,7 @@ class RecipeParsingTest {
 			    }
 					    
 			   instructions: {
-			   		verser @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
+			   		verser @cuil, @pre_levure, @pre_lait, @pbol -> lait_avec_levure;
 			      	verser @pre_farine, @pbol -> melange;
 			      	trou_centre melange;
 			      	verser lait_avec_levure, melange -> melange;
@@ -235,9 +236,8 @@ class RecipeParsingTest {
 			   		verser sucre_granulé, roscon_cru;
 			   		poser fruits confits, roscon_cru;
 			   		grease four, 200°C;
-			   		grill four, roscon_cru, 20min, 180°C -> roscon_cuit;
-			   		sortir roscon_cuit, four;
-			   		laisser_refroidir roscon_cuit
+			   		grill four, roscon_cru, 20min, 180°C-> roscon_cuit;
+			   		sortir roscon_cuit , four 
 			    }
 			}
 			'''
