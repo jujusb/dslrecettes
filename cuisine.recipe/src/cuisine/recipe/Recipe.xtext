@@ -62,6 +62,13 @@ UtensilList: // List of all the utensils required for the recipe
 Utensil: // Definition of a specific utensil, the tag may be used in order to have a shorter reference
 	name=CustomString ("@" tag=WORD)? 
 ;
+ToolList: // List of all the tools required for the recipe
+	{ToolList} "tools" ":" "{" (tools+=Tool (','tools+=Tool)*)? "}"
+;
+
+Tool: // Definition of a specific tool, the tag may be used in order to have a shorter reference
+	name=CustomString ("@" tag=WORD)? 
+;
 Quantity:
 	qt=DOUBLE (quantifier=Quantifier)? | {Quantity} "any"
 ;
